@@ -6,6 +6,7 @@ public class Stock {
 	private Integer owned = 0;
 	private Integer value = 0;
 	private String lastCheck = "Date";
+	private Integer exchanges = 0;
 
 	public Stock(String tick, String fullName, Integer owned)
 	{
@@ -51,6 +52,14 @@ public class Stock {
 		return value * owned;
 	}
 	
+	public Integer getExchanges() {
+		return exchanges;
+	}
+
+	public void setExchanges(Integer exchanges) {
+		this.exchanges = exchanges;
+	}
+
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub

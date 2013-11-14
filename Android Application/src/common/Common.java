@@ -9,12 +9,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
-import android.widget.ArrayAdapter;
 
 @SuppressLint("SimpleDateFormat")
 public class Common {
 	public static List<Stock> stocks = new ArrayList<Stock>();
-	public static ArrayAdapter<Stock> adapter = null;
 	public static Integer selected = -1;
 	
 	
@@ -31,8 +29,6 @@ public class Common {
 			return sdf.format(cal.getTime());
 		}
 	}
-
-
 
 	public static JSONObject convertJSON(String input, Boolean paramsInResponse)
 	{
@@ -61,19 +57,10 @@ public class Common {
 			else
 			{
 				JSONObject result = new JSONObject();
-
-				String[] lines = input.split("\n");
-				JSONArray jsonarray = new JSONArray();
-				for (int i = 0 ; i < lines.length ; i++)
-				{
-					String[] values = lines[i].split(",");
-					JSONObject jsonvalue = new JSONObject();
+				String[] params = {"Tick","Value","Date","Time","Exchanges"};
+				String[] values = input.split(",");
 					for (int x = 0 ; x < values.length ; x++)
-						jsonvalue.accumulate(Integer.valueOf(x).toString(), values[x]);
-
-					jsonarray.put(jsonvalue);
-				}
-				result.accumulate("Values",jsonarray);
+						result.accumulate(params[x], values[x]);
 				return result;
 			}
 		}

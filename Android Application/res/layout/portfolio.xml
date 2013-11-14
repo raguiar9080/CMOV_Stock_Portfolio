@@ -9,7 +9,7 @@
         android:layout_width="75dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:choiceMode="singleChoice"
+        android:choiceMode="none"
         android:scrollbars="none" />
 
     <LinearLayout
@@ -46,7 +46,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:layout_toLeftOf="@id/lastChecked"
-                    android:text="Last Checked: " />
+                    android:text="Checked: " />
                 
             </RelativeLayout>
             
