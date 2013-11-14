@@ -28,6 +28,15 @@ public class EvolutionGraph extends Fragment {
 		return view;
 	}
 
+	public void Redraw () {
+		if (Common.selected != -1)
+		{
+			//TODO erase previous graph
+			//TODO make network request
+			//TODO show graph
+		}
+	}
+	
 	public class AsyncGetEvolution extends AsyncTask<Void, Void,  JSONObject> {
 		private ArrayList<NameValuePair> elems = new ArrayList<NameValuePair>();
 		@Override
@@ -36,6 +45,7 @@ public class EvolutionGraph extends Fragment {
 		}
 		@Override
 		protected JSONObject doInBackground(Void... params) {
+			//TODO make params usefull
 			elems.add(new BasicNameValuePair("a","9"));
 			elems.add(new BasicNameValuePair("b","5"));
 			elems.add(new BasicNameValuePair("c","2013"));

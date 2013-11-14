@@ -14,7 +14,8 @@ import android.widget.ArrayAdapter;
 @SuppressLint("SimpleDateFormat")
 public class Common {
 	public static List<Stock> stocks = new ArrayList<Stock>();
-	public static ArrayAdapter<Stock> adapter; 
+	public static ArrayAdapter<Stock> adapter = null;
+	public static Integer selected = -1;
 	
 	
 	public static final String PREFS_NAME = "Stock_Portfolio";

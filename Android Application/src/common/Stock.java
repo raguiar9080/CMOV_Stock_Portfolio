@@ -36,6 +36,7 @@ public class Stock {
 	public Integer getOwned() {
 		return owned;
 	}
+	
 	public void setOwned(Integer owned) {
 		this.owned = owned;
 	}
