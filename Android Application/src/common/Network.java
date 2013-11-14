@@ -1,24 +1,34 @@
 package common;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.http.*;
-import org.apache.http.message.*;
-import org.json.*;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 public class Network implements Runnable {
 
 	private String link, resultString, method;
 	private ArrayList<NameValuePair> payload;
 	private int readTimeout = 10000, connectionTimeout = 15000;
-	private JSONObject resultObject;
+	private String resultObject;
+	private Boolean paramsInURL;
 
-	public Network(String link, String method, ArrayList<NameValuePair> payload) {
+	public Network(String link, String method, ArrayList<NameValuePair> payload, Boolean paramsInURL) {
 		this.link = link;
 		this.method = method;
 		this.payload = payload;
+		this.paramsInURL = paramsInURL;
 	}
 
 	@Override
@@ -31,7 +41,13 @@ public class Network implements Runnable {
 		String line = "";
 		StringBuffer sb = new StringBuffer();
 		try {
-
+			if(payload != null && paramsInURL)
+			{
+				link += "?";
+				for(NameValuePair pair : payload)
+					link += pair.getName() + "=" + pair.getValue() + "&";
+			}
+			
 			URL url = new URL(link);
 			con = (HttpURLConnection) url.openConnection();
 			con.setReadTimeout(readTimeout);
@@ -39,7 +55,7 @@ public class Network implements Runnable {
 			con.setRequestMethod(method);
 			con.setDoInput(true);
 
-			if(payload != null) {
+			if(payload != null && !paramsInURL) {
 				con.setDoOutput(true);
 
 				ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -63,16 +79,11 @@ public class Network implements Runnable {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8" ));
 
 			while ((line = reader.readLine()) != null)
-				sb.append(line);
+				sb.append(line + "\n");
 
 			resultString = sb.toString();
 
-			try {
-				setResultObject(new JSONObject(resultString));
-			} catch (JSONException e) {
-				System.out.println("Something here?");
-			}
-
+			setResultObject(resultString);
 			reader.close();
 		} 
 		catch (IOException e) {
@@ -102,11 +113,11 @@ public class Network implements Runnable {
 		return result.toString();
 	}
 
-	public JSONObject getResultObject() {
+	public String getResultObject() {
 		return resultObject;
 	}
 
-	public void setResultObject(JSONObject resultObject) {
+	public void setResultObject(String resultObject) {
 		this.resultObject = resultObject;
 	}
 

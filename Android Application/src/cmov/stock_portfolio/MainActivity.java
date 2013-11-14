@@ -21,7 +21,7 @@ import android.widget.TextView;
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener {
 
-	/**w
+	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
 	 * fragments for each of the sections. We use a
 	 * {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
@@ -117,11 +117,19 @@ public class MainActivity extends FragmentActivity implements
 			// getItem is called to instantiate the fragment for the given page.
 			// Return a DummySectionFragment (defined as a static inner class
 			// below) with the page number as its lone argument.
-			Fragment fragment = new DummySectionFragment();
-			Bundle args = new Bundle();
-			args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
-			fragment.setArguments(args);
-			return fragment;
+			switch (position)
+			{
+				case 0: 
+					return new Portfolio();					
+				case 1:
+					return new EvolutionGraph();
+				default:
+					Fragment fragment = new DummySectionFragment();
+					Bundle args = new Bundle();
+					args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
+					fragment.setArguments(args);
+					return fragment;
+			}
 		}
 
 		@Override
