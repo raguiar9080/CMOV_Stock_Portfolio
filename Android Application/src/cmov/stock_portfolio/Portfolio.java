@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -26,7 +25,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 import cmov.stock.stock_portfolio.R;
 
 import common.Common;
@@ -34,13 +32,13 @@ import common.Network;
 import common.Stock;
 
 public class Portfolio extends Fragment {
-
+	StockAdapter adapter;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
 		final View view = inflater.inflate(R.layout.portfolio, container, false);
 
-		StockAdapter adapter = new StockAdapter(getActivity(), R.layout.row_stock);
+		adapter = new StockAdapter(getActivity(), R.layout.row_stock);
 		final Spinner spinner = (Spinner) view.findViewById(R.id.TicksList);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -73,14 +71,6 @@ public class Portfolio extends Fragment {
 			}
 		});
 
-		final Button getData = (Button) view.findViewById(R.id.getData);
-		getData.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				new AsyncGetStockInfo().execute();
-			}
-		});
-
 		final Button refreshFrag = (Button) view.findViewById(R.id.refreshFragment);
 		refreshFrag.setOnClickListener(new OnClickListener() {
 			@Override
@@ -109,11 +99,28 @@ public class Portfolio extends Fragment {
 				graphEvo.loadUrl(url);				
 			}
 		});
+		
+		
+		
+	
+		/*
+		//TODO
+        adapter.add(new Stock("MSFT","Microsoft Corporation",10));
+        adapter.add(new Stock("TWIT","Twiter",20));
+        adapter.add(new Stock("ASDD","Corporation",30));
+        adapter.add(new Stock("AWEQ","Bad Corporation",40));
+        adapter.add(new Stock("GSFT","Good Corporation",50));
+        adapter.add(new Stock("ESFT","Evil Corporation",60));
+        adapter.add(new Stock("VALV","Valve Corporation",70));
+        adapter.add(new Stock("QSFT","Healthy Corporation",80));
+        adapter.add(new Stock("SSFT","Sick Corporation",90));
+		*/
+
 
 		return view;
 	}
 
-	private class StockAdapter extends ArrayAdapter<Stock> {
+	public class StockAdapter extends ArrayAdapter<Stock> {
 
 		public StockAdapter(Context context, int textViewResourceId) {
 			super(context, textViewResourceId, Common.stocks);
@@ -159,50 +166,6 @@ public class Portfolio extends Fragment {
 			if (position == Common.selected)
 				v.setBackgroundColor(0xFF2980b9);
 			return v;
-		}
-	}
-
-
-	public class AsyncGetStockInfo extends AsyncTask<Void, Void,  JSONObject> {
-		private ArrayList<NameValuePair> elems = new ArrayList<NameValuePair>();
-		private Integer index;
-		private Stock selected;
-
-		@Override
-		protected void onPreExecute() {
-			index = Common.selected;
-			selected = Common.stocks.get(Common.selected);
-			super.onPreExecute();
-		}
-		@Override
-		protected JSONObject doInBackground(Void... params) {
-			elems.add(new BasicNameValuePair("f","sl1d1t1v"));
-			elems.add(new BasicNameValuePair("s",selected.getTick()));
-
-			Network connection = new Network(Common.SERVER_URL_FINANCES + "d/quotes", "GET", elems, true);
-			connection.run();
-			return Common.convertJSON(connection.getResultObject(),false);
-		}
-		protected void onPostExecute(JSONObject result) {
-			try {
-				selected.setLastCheck(result.get("Date") + " " + result.get("Time"));
-				selected.setValue(result.getInt("Value"));
-				selected.setExchanges(result.getInt("Exchanges"));
-				Common.stocks.set(index, selected);
-
-				final TextView value = (TextView) getView().findViewById(R.id.shareValue);
-				final TextView total = (TextView) getView().findViewById(R.id.totalValue);
-				final TextView checked = (TextView) getView().findViewById(R.id.lastChecked);
-
-				value.setText(selected.getValue().toString());
-				total.setText(selected.getTotalValue().toString());
-				checked.setText(selected.getLastCheck());
-
-				Toast.makeText(getActivity(), "Data Retrieved Sucessfully", Toast.LENGTH_SHORT).show();
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-
 		}
 	}
 

@@ -87,13 +87,12 @@
                 </RelativeLayout>
             </LinearLayout>
         </LinearLayout>
-
     </LinearLayout>
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/getData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Refresh All Info" />
+        android:text="Get All Data" />
 
 </LinearLayout>

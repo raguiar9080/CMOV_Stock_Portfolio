@@ -45,6 +45,8 @@ public class Common {
 	{
 		try
 		{
+			input = input.replaceAll("\"N/A\"", "-");
+			input = input.replaceAll("N/A", "0");
 			input = input.replaceAll("\"", "");
 			if (paramsInResponse)
 			{
@@ -69,9 +71,18 @@ public class Common {
 			{
 				JSONObject result = new JSONObject();
 				String[] params = {"Tick","Value","Date","Time","Exchanges"};
-				String[] values = input.split(",");
-				for (int x = 0 ; x < values.length ; x++)
-					result.accumulate(params[x], values[x]);
+				String[] lines = input.split("\n");
+				JSONArray jsonarray = new JSONArray();
+				for (int i = 0 ; i < lines.length ; i++)
+				{
+					String[] values = lines[i].split(",");
+					JSONObject jsonvalue = new JSONObject();
+					for (int x = 0 ; x < values.length ; x++)
+						jsonvalue.accumulate(params[x], values[x]);
+
+					jsonarray.put(jsonvalue);
+				}
+				result.accumulate("Values",jsonarray);
 				return result;
 			}
 		}
@@ -102,7 +113,15 @@ public class Common {
 		return count;
 	}
 	
-	
+	public static String getAllOwnedTicks()
+	{
+		String count = "";
+		for (Stock stock : stocks)
+		{
+			count += stock.getTick() + ",";
+		}
+		return count;
+	}
 	
 	@SuppressWarnings("unchecked")
 	public static void loadStocks(Application application) {

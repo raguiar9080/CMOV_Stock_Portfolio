@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="visible" >
+        android:visibility="gone" >
 
         <TextView
             android:layout_width="wrap_content"
@@ -161,12 +161,6 @@
                 android:layout_gravity="center"
                 android:visibility="gone" />
         </RelativeLayout>
-
-        <Button
-            android:id="@+id/getData"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Get Data" />
 
         <Button
             android:id="@+id/refreshFragment"
