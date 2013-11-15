@@ -56,7 +56,7 @@ public class TotalPortfolio extends Fragment {
 		}
 		@Override
 		protected JSONObject doInBackground(Void... params) {
-			elems.add(new BasicNameValuePair("f","sl1d1t1v"));
+			elems.add(new BasicNameValuePair("f","snl1d1t1v"));
 			elems.add(new BasicNameValuePair("s",Common.getAllOwnedTicks()));
 
 			Network connection = new Network(Common.SERVER_URL_FINANCES + "d/quotes", "GET", elems, true);
@@ -72,8 +72,9 @@ public class TotalPortfolio extends Fragment {
 					Stock tmp = Common.stocks.get(i);
 					
 					tmp.setExchanges(tick.getInt("Exchanges"));
-					tmp.setLastCheck(tick.get("Date") + " " + tick.get("Time"));
+					tmp.setLastCheck(tick.getString("Date") + " " + tick.getString("Time"));
 					tmp.setValue(tick.getInt("Value"));
+					tmp.setFullName(tick.getString("Name"));
 
 					Common.stocks.set(i, tmp);
 				}

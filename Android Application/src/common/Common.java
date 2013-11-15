@@ -70,7 +70,7 @@ public class Common {
 			else
 			{
 				JSONObject result = new JSONObject();
-				String[] params = {"Tick","Value","Date","Time","Exchanges"};
+				String[] params = {"Tick","Name", "Value","Date","Time","Exchanges"};
 				String[] lines = input.split("\n");
 				JSONArray jsonarray = new JSONArray();
 				for (int i = 0 ; i < lines.length ; i++)
