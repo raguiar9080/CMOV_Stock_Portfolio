@@ -113,49 +113,6 @@ public class Portfolio extends Fragment {
 		return view;
 	}
 
-	public class AsyncGetStockInfo extends AsyncTask<Void, Void,  JSONObject> {
-		private ArrayList<NameValuePair> elems = new ArrayList<NameValuePair>();
-		private Integer index;
-		private Stock selected;
-
-		@Override
-		protected void onPreExecute() {
-			index = Common.selected;
-			selected = Common.stocks.get(Common.selected);
-			super.onPreExecute();
-		}
-		@Override
-		protected JSONObject doInBackground(Void... params) {
-			elems.add(new BasicNameValuePair("f","sl1d1t1v"));
-			elems.add(new BasicNameValuePair("s",selected.getTick()));
-
-			Network connection = new Network(Common.SERVER_URL_FINANCES + "d/quotes", "GET", elems, true);
-			connection.run();
-			return Common.convertJSON(connection.getResultObject(),false);
-		}
-		protected void onPostExecute(JSONObject result) {
-			try {
-				selected.setLastCheck(result.get("Date") + " " + result.get("Time"));
-				selected.setValue(result.getInt("Value"));
-				selected.setExchanges(result.getInt("Exchanges"));
-				Common.stocks.set(index, selected);
-
-				final TextView value = (TextView) getView().findViewById(R.id.shareValue);
-				final TextView total = (TextView) getView().findViewById(R.id.totalValue);
-				final TextView checked = (TextView) getView().findViewById(R.id.lastChecked);
-
-				value.setText(selected.getValue().toString());
-				total.setText(selected.getTotalValue().toString());
-				checked.setText(selected.getLastCheck());
-
-				Toast.makeText(getActivity(), "Data Retrieved Sucessfully", Toast.LENGTH_SHORT).show();
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-
-		}
-	}
-
 	private class StockAdapter extends ArrayAdapter<Stock> {
 
 		public StockAdapter(Context context, int textViewResourceId) {
@@ -202,6 +159,77 @@ public class Portfolio extends Fragment {
 			if (position == Common.selected)
 				v.setBackgroundColor(0xFF2980b9);
 			return v;
+		}
+	}
+
+
+	public class AsyncGetStockInfo extends AsyncTask<Void, Void,  JSONObject> {
+		private ArrayList<NameValuePair> elems = new ArrayList<NameValuePair>();
+		private Integer index;
+		private Stock selected;
+
+		@Override
+		protected void onPreExecute() {
+			index = Common.selected;
+			selected = Common.stocks.get(Common.selected);
+			super.onPreExecute();
+		}
+		@Override
+		protected JSONObject doInBackground(Void... params) {
+			elems.add(new BasicNameValuePair("f","sl1d1t1v"));
+			elems.add(new BasicNameValuePair("s",selected.getTick()));
+
+			Network connection = new Network(Common.SERVER_URL_FINANCES + "d/quotes", "GET", elems, true);
+			connection.run();
+			return Common.convertJSON(connection.getResultObject(),false);
+		}
+		protected void onPostExecute(JSONObject result) {
+			try {
+				selected.setLastCheck(result.get("Date") + " " + result.get("Time"));
+				selected.setValue(result.getInt("Value"));
+				selected.setExchanges(result.getInt("Exchanges"));
+				Common.stocks.set(index, selected);
+
+				final TextView value = (TextView) getView().findViewById(R.id.shareValue);
+				final TextView total = (TextView) getView().findViewById(R.id.totalValue);
+				final TextView checked = (TextView) getView().findViewById(R.id.lastChecked);
+
+				value.setText(selected.getValue().toString());
+				total.setText(selected.getTotalValue().toString());
+				checked.setText(selected.getLastCheck());
+
+				Toast.makeText(getActivity(), "Data Retrieved Sucessfully", Toast.LENGTH_SHORT).show();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+
+		}
+	}
+
+	public class AsyncGetEvolution extends AsyncTask<Void, Void,  JSONObject> {
+		private ArrayList<NameValuePair> elems = new ArrayList<NameValuePair>();
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+		}
+		@Override
+		protected JSONObject doInBackground(Void... params) {
+			//TODO make params usefull
+			elems.add(new BasicNameValuePair("a","9"));
+			elems.add(new BasicNameValuePair("b","5"));
+			elems.add(new BasicNameValuePair("c","2013"));
+			elems.add(new BasicNameValuePair("d","9"));
+			elems.add(new BasicNameValuePair("e","19"));
+			elems.add(new BasicNameValuePair("f","2013"));
+			elems.add(new BasicNameValuePair("g","d"));
+			elems.add(new BasicNameValuePair("s","DELL"));
+
+			Network connection = new Network(Common.SERVER_URL_CHARTS + "table.txt", "GET", elems, true);
+			connection.run();
+			return Common.convertJSON(connection.getResultObject(),true);
+		}
+		protected void onPostExecute(JSONObject result) {
+			System.out.println(result.toString());
 		}
 	}
 }

@@ -4,13 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <Spinner
-        android:id="@+id/TicksList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:scrollbars="none" />
-
     <LinearLayout
         android:id="@+id/stockInformation"
         android:layout_width="match_parent"
@@ -29,26 +22,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <TextView
-                    android:id="@+id/lastChecked"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerHorizontal="true"
-                    android:text="Data" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_toLeftOf="@id/lastChecked"
-                    android:text="Checked: " />
-            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -80,19 +53,6 @@
                         android:text="Value"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
                 </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" >
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:text="Total"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
-                </RelativeLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -106,20 +66,7 @@
                     android:layout_weight="1" >
 
                     <TextView
-                        android:id="@+id/ownedShares"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" >
-
-                    <TextView
-                        android:id="@+id/shareValue"
+                        android:id="@+id/totalShares"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
@@ -141,38 +88,12 @@
             </LinearLayout>
         </LinearLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center" >
-
-            <WebView
-                android:id="@+id/GraphEvolution"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="3dp"
-                android:visibility="gone" />
-
-            <ProgressBar
-                android:id="@+id/webViewProgress"
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone" />
-        </RelativeLayout>
-
-        <Button
-            android:id="@+id/getData"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Get Data" />
-
-        <Button
-            android:id="@+id/refreshFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Draw History" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Refresh All Info" />
 
 </LinearLayout>

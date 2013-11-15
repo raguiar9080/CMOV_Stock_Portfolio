@@ -81,6 +81,28 @@ public class Common {
 		}		
 		return null;
 	}
+
+	public static Integer getSumValue()
+	{
+		Integer count = 0;
+		for (Stock stock : stocks)
+		{
+			count += stock.getTotalValue();
+		}
+		return count;
+	}
+	
+	public static Integer getSumShares()
+	{
+		Integer count = 0;
+		for (Stock stock : stocks)
+		{
+			count += stock.getOwned();
+		}
+		return count;
+	}
+	
+	
 	
 	@SuppressWarnings("unchecked")
 	public static void loadStocks(Application application) {

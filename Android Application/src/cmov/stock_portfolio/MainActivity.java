@@ -131,9 +131,9 @@ public class MainActivity extends FragmentActivity implements
 			switch (position)
 			{
 				case 0: 
-					return new Portfolio();					
+					return new TotalPortfolio();
 				case 1:
-					return new EvolutionGraph();
+					return new Portfolio();					
 				default:
 					Fragment fragment = new DummySectionFragment();
 					Bundle args = new Bundle();
