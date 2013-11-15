@@ -34,18 +34,14 @@ import common.Network;
 import common.Stock;
 
 public class Portfolio extends Fragment {
-	private StockAdapter adapter = null;
-
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
 		final View view = inflater.inflate(R.layout.portfolio, container, false);
 
-		this.adapter = new StockAdapter(getActivity(), R.layout.row_stock);
+		StockAdapter adapter = new StockAdapter(getActivity(), R.layout.row_stock);
 		final ListView list = (ListView) view.findViewById(R.id.TicksList);
-		//setListAdapter(this.adapter);
-
-		//adapter = new ArrayAdapter<Stock>(getActivity(), android.R.layout.simple_list_item_1); 
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(new OnItemClickListener() {
 			private View previous_view = null;
@@ -55,6 +51,9 @@ public class Portfolio extends Fragment {
 				//TODO check bug on last
 				if(previous_view!=null)
 					previous_view.setBackgroundColor(0x00000000);
+				else
+					getView().findViewById(R.id.stockInformation).setVisibility(View.VISIBLE);
+				
 				view.setBackgroundColor(0xFF33b5e5);
 				previous_view = view;
 
@@ -114,22 +113,6 @@ public class Portfolio extends Fragment {
 				graphEvo.loadUrl(url);				
 			}
 		});
-
-
-
-		//TODO
-		adapter.add(new Stock("MSFT","Microsoft Corporation",10));
-		adapter.add(new Stock("TWIT","Twiter",20));
-		adapter.add(new Stock("ASDD","Corporation",30));
-		adapter.add(new Stock("AWEQ","Bad Corporation",40));
-		adapter.add(new Stock("GSFT","Good Corporation",50));
-		adapter.add(new Stock("ESFT","Evil Corporation",60));
-		adapter.add(new Stock("VALV","Valve Corporation",70));
-		adapter.add(new Stock("QSFT","Healthy Corporation",80));
-		adapter.add(new Stock("SSFT","Sick Corporation",90));
-
-		//TODO
-		//list.performItemClick(view, 0, 0);
 
 		return view;
 	}

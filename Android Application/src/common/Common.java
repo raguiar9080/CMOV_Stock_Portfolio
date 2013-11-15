@@ -1,5 +1,9 @@
 package common;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -9,17 +13,24 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.app.Application;
+import android.content.Context;
+import android.os.Environment;
 
 @SuppressLint("SimpleDateFormat")
 public class Common {
 	public static List<Stock> stocks = new ArrayList<Stock>();
 	public static Integer selected = -1;
-	
-	
-	public static final String PREFS_NAME = "Stock_Portfolio";
+
+	public static Boolean mExternalStorageAvailable = false;
+	public static Boolean mExternalStorageWriteable = false;
+	static String state = Environment.getExternalStorageState();
+
+
+	public static final String FILE_NAME = "Stock_Portfolio";
 	public static final String SERVER_URL_CHARTS = "http://ichart.finance.yahoo.com/";
 	public static final String SERVER_URL_FINANCES = "http://finances.yahoo.com/";
-	
+
 	public static class DateUtils {
 		public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
 
@@ -59,8 +70,8 @@ public class Common {
 				JSONObject result = new JSONObject();
 				String[] params = {"Tick","Value","Date","Time","Exchanges"};
 				String[] values = input.split(",");
-					for (int x = 0 ; x < values.length ; x++)
-						result.accumulate(params[x], values[x]);
+				for (int x = 0 ; x < values.length ; x++)
+					result.accumulate(params[x], values[x]);
 				return result;
 			}
 		}
@@ -69,5 +80,33 @@ public class Common {
 			e.printStackTrace();
 		}		
 		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static void loadStocks(Application application) {
+		try {
+			FileInputStream fstream = application.openFileInput(FILE_NAME);
+			ObjectInputStream in = new ObjectInputStream(fstream);
+			stocks = (ArrayList<Stock>) in.readObject();
+			fstream.close();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();			
+		}
+	}
+	
+	public static void saveStocks(Application application) {
+		// Create file 
+		try {
+			FileOutputStream fstream = application.openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
+			ObjectOutputStream out = new ObjectOutputStream(fstream);
+			out.writeObject(stocks);
+			fstream.close();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();			
+		}
 	}
 }

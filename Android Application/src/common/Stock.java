@@ -1,6 +1,9 @@
 package common;
 
-public class Stock {
+import java.io.Serializable;
+
+public class Stock implements Serializable {
+	private static final long serialVersionUID = 1262807410200907660L;
 	private String tick = "Tick";
 	private String fullName = "Name";
 	private Integer owned = 0;

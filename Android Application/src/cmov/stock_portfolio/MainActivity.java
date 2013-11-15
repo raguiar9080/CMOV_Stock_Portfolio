@@ -2,6 +2,8 @@ package cmov.stock_portfolio;
 
 import java.util.Locale;
 
+import common.Common;
+
 import cmov.stock.stock_portfolio.R;
 
 import android.app.ActionBar;
@@ -37,7 +39,16 @@ public class MainActivity extends FragmentActivity implements
 	ViewPager mViewPager;
 
 	@Override
+	protected void onDestroy() {
+		Common.saveStocks(getApplication());
+		
+		super.onDestroy();
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Common.loadStocks(getApplication());
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
