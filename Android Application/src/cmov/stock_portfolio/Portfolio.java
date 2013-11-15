@@ -45,19 +45,9 @@ public class Portfolio extends Fragment {
 
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				getView().findViewById(R.id.stockInformation).setVisibility(View.VISIBLE);
-
-				final TextView owned = (TextView) getView().findViewById(R.id.ownedShares);
-				final TextView value = (TextView) getView().findViewById(R.id.shareValue);
-				final TextView total = (TextView) getView().findViewById(R.id.totalValue);
-				final TextView checked = (TextView) getView().findViewById(R.id.lastChecked);
-
-				owned.setText(Common.stocks.get(position).getOwned().toString());
-				value.setText(Common.stocks.get(position).getValue().toString());
-				total.setText(Common.stocks.get(position).getTotalValue().toString());
-				checked.setText(Common.stocks.get(position).getLastCheck());
-
 				Common.selected = position;
+
+				onResume();
 
 				final WebView graphEvo = (WebView) getView().findViewById(R.id.GraphEvolution);
 				final ProgressBar webViewProgress = (ProgressBar) getView().findViewById(R.id.webViewProgress);
@@ -118,6 +108,26 @@ public class Portfolio extends Fragment {
 
 
 		return view;
+	}
+	
+	@Override
+	public void onResume()
+	{
+		if(Common.selected != - 1 && getView() != null)
+		{
+			getView().findViewById(R.id.stockInformation).setVisibility(View.VISIBLE);
+
+			final TextView owned = (TextView) getView().findViewById(R.id.ownedShares);
+			final TextView value = (TextView) getView().findViewById(R.id.shareValue);
+			final TextView total = (TextView) getView().findViewById(R.id.totalValue);
+			final TextView checked = (TextView) getView().findViewById(R.id.lastChecked);
+
+			owned.setText(Common.stocks.get(Common.selected).getOwned().toString());
+			value.setText(Common.stocks.get(Common.selected).getValue().toString() + "$");
+			total.setText(Common.stocks.get(Common.selected).getTotalValue().toString() + "$");
+			checked.setText(Common.stocks.get(Common.selected).getLastCheck());
+		}
+		super.onResume();
 	}
 
 	public class StockAdapter extends ArrayAdapter<Stock> {

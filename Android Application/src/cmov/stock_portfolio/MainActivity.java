@@ -21,7 +21,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 public class MainActivity extends FragmentActivity implements
-		ActionBar.TabListener {
+ActionBar.TabListener {
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -41,7 +41,7 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	protected void onDestroy() {
 		Common.saveStocks(getApplication());
-		
+
 		super.onDestroy();
 	}
 
@@ -58,23 +58,32 @@ public class MainActivity extends FragmentActivity implements
 
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the app.
-		mSectionsPagerAdapter = new SectionsPagerAdapter(
-				getSupportFragmentManager());
+		mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
-
 		// When swiping between different sections, select the corresponding
 		// tab. We can also use ActionBar.Tab#select() to do this if we have
 		// a reference to the Tab.
 		mViewPager
-				.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-					@Override
-					public void onPageSelected(int position) {
-						actionBar.setSelectedNavigationItem(position);
-					}
-				});
+		.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+			@Override
+			public void onPageSelected(int position) {
+				actionBar.setSelectedNavigationItem(position);
+				//MainActivity app = (MainActivity) getApplication().getApplicationContext();
+				switch(position)
+				{
+				case 0:
+					((TotalPortfolio) mSectionsPagerAdapter.instantiateItem(mViewPager, 1)).onResume();
+					break;
+				case 1:
+					((Portfolio) mSectionsPagerAdapter.instantiateItem(mViewPager, 1)).onResume();
+					break;
+				}
+
+			}
+		});
 
 		// For each of the sections in the app, add a tab to the action bar.
 		for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
@@ -130,16 +139,16 @@ public class MainActivity extends FragmentActivity implements
 			// below) with the page number as its lone argument.
 			switch (position)
 			{
-				case 0: 
-					return new TotalPortfolio();
-				case 1:
-					return new Portfolio();					
-				default:
-					Fragment fragment = new DummySectionFragment();
-					Bundle args = new Bundle();
-					args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
-					fragment.setArguments(args);
-					return fragment;
+			case 0: 
+				return new TotalPortfolio();
+			case 1:
+				return new Portfolio();					
+			default:
+				Fragment fragment = new DummySectionFragment();
+				Bundle args = new Bundle();
+				args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
+				fragment.setArguments(args);
+				return fragment;
 			}
 		}
 

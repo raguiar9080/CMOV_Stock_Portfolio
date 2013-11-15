@@ -31,12 +31,6 @@ public class TotalPortfolio extends Fragment {
 		// Inflate the layout for this fragment
 		final View view = inflater.inflate(R.layout.total_portfolio, container, false);
 		
-		final TextView owned = (TextView) view.findViewById(R.id.totalShares);
-		final TextView value = (TextView) view.findViewById(R.id.totalValue);
-
-		owned.setText(Common.getSumShares().toString());
-		value.setText(Common.getSumValue().toString());
-
 		final Button getData = (Button) view.findViewById(R.id.getData);
 		getData.setOnClickListener(new OnClickListener() {
 			@Override
@@ -44,7 +38,20 @@ public class TotalPortfolio extends Fragment {
 				new AsyncGetStockInfo().execute();
 			}
 		});
+		
+		//onResume();
+		
 		return view;
+	}
+	
+	@Override
+	public void onResume() {
+		final TextView owned = (TextView) getView().findViewById(R.id.totalShares);
+		final TextView value = (TextView) getView().findViewById(R.id.totalValue);
+
+		owned.setText(Common.getSumShares().toString());
+		value.setText(Common.getSumValue().toString() + "$");
+		super.onResume();
 	}
 	
 	public class AsyncGetStockInfo extends AsyncTask<Void, Void,  JSONObject> {
@@ -78,14 +85,11 @@ public class TotalPortfolio extends Fragment {
 
 					Common.stocks.set(i, tmp);
 				}
+				
+				onResume();
+				//Redraw(getView());
 
-				final TextView owned = (TextView) getView().findViewById(R.id.totalShares);
-				final TextView value = (TextView) getView().findViewById(R.id.totalValue);
-
-				owned.setText(Common.getSumShares().toString());
-				value.setText(Common.getSumValue().toString());
-
-				Toast.makeText(getActivity(), "Data Retrieved Sucessfully", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity(), "Data Updated", Toast.LENGTH_SHORT).show();
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}

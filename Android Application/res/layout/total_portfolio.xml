@@ -11,13 +11,6 @@
         android:orientation="vertical"
         android:visibility="visible" >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Summary"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,7 +30,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
-                        android:text="Owned"
+                        android:text="Shares Owned"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
                 </RelativeLayout>
 
@@ -50,7 +43,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
-                        android:text="Value"
+                        android:text="Total Value"
                         android:textAppearance="?android:attr/textAppearanceMedium" />
                 </RelativeLayout>
             </LinearLayout>
@@ -93,6 +86,6 @@
         android:id="@+id/getData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Get All Data" />
+        android:text="Refresh All Data" />
 
 </LinearLayout>
