@@ -20,11 +20,11 @@ import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import cmov.stock.stock_portfolio.R;
@@ -34,28 +34,20 @@ import common.Network;
 import common.Stock;
 
 public class Portfolio extends Fragment {
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
 		final View view = inflater.inflate(R.layout.portfolio, container, false);
 
 		StockAdapter adapter = new StockAdapter(getActivity(), R.layout.row_stock);
-		final ListView list = (ListView) view.findViewById(R.id.TicksList);
-		list.setAdapter(adapter);
-		list.setOnItemClickListener(new OnItemClickListener() {
-			private View previous_view = null;
+		final Spinner spinner = (Spinner) view.findViewById(R.id.TicksList);
+		spinner.setAdapter(adapter);
+		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {			
-				//TODO check bug on last
-				if(previous_view!=null)
-					previous_view.setBackgroundColor(0x00000000);
-				else
-					getView().findViewById(R.id.stockInformation).setVisibility(View.VISIBLE);
-				
-				view.setBackgroundColor(0xFF33b5e5);
-				previous_view = view;
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				getView().findViewById(R.id.stockInformation).setVisibility(View.VISIBLE);
 
 				final TextView owned = (TextView) getView().findViewById(R.id.ownedShares);
 				final TextView value = (TextView) getView().findViewById(R.id.shareValue);
@@ -68,12 +60,16 @@ public class Portfolio extends Fragment {
 				checked.setText(Common.stocks.get(position).getLastCheck());
 
 				Common.selected = position;
-				
+
 				final WebView graphEvo = (WebView) getView().findViewById(R.id.GraphEvolution);
 				final ProgressBar webViewProgress = (ProgressBar) getView().findViewById(R.id.webViewProgress);
 				graphEvo.setVisibility(View.GONE);
 				webViewProgress.setVisibility(View.GONE);
+			}
 
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				getView().findViewById(R.id.stockInformation).setVisibility(View.GONE);
 			}
 		});
 
@@ -166,13 +162,32 @@ public class Portfolio extends Fragment {
 			super(context, textViewResourceId, Common.stocks);
 		}
 
+		public int getCount(){
+			return Common.stocks.size();
+		}
+
+		public Stock getItem(int position){
+			return Common.stocks.get(position);
+		}
+
+		public long getItemId(int position){
+			return position;
+		}
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
+			View v = getDropDownView(position, convertView, parent);
+			v.setBackgroundColor(0x00000000);
+			return v;
+		}
+
+		// And here is when the "chooser" is popped up
+		// Normally is the same view, but you can customize it if you want
+		@Override
+		public View getDropDownView(int position, View convertView, ViewGroup parent) {
 			View v = convertView;
-			if (v == null) {
-				LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				v = vi.inflate(R.layout.row_stock, null);
-			}
+			LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			v = vi.inflate(R.layout.row_stock, null);
 			Stock o = Common.stocks.get(position);
 			if (o != null) {
 				TextView tt = (TextView) v.findViewById(R.id.toptext);
@@ -183,6 +198,9 @@ public class Portfolio extends Fragment {
 					bt.setText(o.getFullName());
 				}
 			}
+			//selected choice
+			if (position == Common.selected)
+				v.setBackgroundColor(0xFF2980b9);
 			return v;
 		}
 	}
