@@ -2,6 +2,8 @@ package cmov.stock_portfolio;
 
 import java.util.Locale;
 
+import opengl.Graph;
+
 import common.Common;
 
 import cmov.stock.stock_portfolio.R;
@@ -71,11 +73,11 @@ ActionBar.TabListener {
 			@Override
 			public void onPageSelected(int position) {
 				actionBar.setSelectedNavigationItem(position);
-				//MainActivity app = (MainActivity) getApplication().getApplicationContext();
+				
 				switch(position)
 				{
 				case 0:
-					((TotalPortfolio) mSectionsPagerAdapter.instantiateItem(mViewPager, 1)).onResume();
+					((TotalPortfolio) mSectionsPagerAdapter.instantiateItem(mViewPager, 0)).onResume();
 					break;
 				case 1:
 					((Portfolio) mSectionsPagerAdapter.instantiateItem(mViewPager, 1)).onResume();
@@ -142,7 +144,9 @@ ActionBar.TabListener {
 			case 0: 
 				return new TotalPortfolio();
 			case 1:
-				return new Portfolio();					
+				return new Portfolio();
+			case 2:
+				return new Graph();
 			default:
 				Fragment fragment = new DummySectionFragment();
 				Bundle args = new Bundle();
