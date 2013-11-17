@@ -14,9 +14,7 @@ import opengl.text.GLText;
 import org.apache.http.NameValuePair;
 
 import android.content.Context;
-import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
-import android.opengl.Matrix;
 import android.view.MotionEvent;
 
 class PieChart implements Renderer {
@@ -41,20 +39,15 @@ class PieChart implements Renderer {
 	private int[] mNumOfIndices = null;   
 	private GLText glText;
 
-
-
-	private float[] mProjMatrix = new float[16];
-	private float[] mVMatrix = new float[16];
-	private float[] mVPMatrix = new float[16];
 	private int width;
 	private int height; 
 
 	public float mAngleX = 0.0f; 
 	public float mAngleY = 0.0f; 
 	public float mAngleZ = 0.0f; 
-	private float mPreviousX; 
+	/*private float mPreviousX; 
 	private float mPreviousY; 
-	private final float TOUCH_SCALE_FACTOR = 0.6f;
+	private final float TOUCH_SCALE_FACTOR = 0.6f;*/
 
 	public PieChart(ArrayList<NameValuePair> elems, Context context) {
 		if (elems == null)
@@ -70,6 +63,27 @@ class PieChart implements Renderer {
 			sum_values += Integer.parseInt(value.getValue());		
 	} 
 
+	@Override
+	public void onSurfaceCreated(GL10 gl, EGLConfig arg1) {
+		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); 
+		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
+		
+		//Cannot Enable due to text, dunno why :S
+		//gl.glEnable(GL10.GL_DEPTH_TEST);
+
+		gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
+
+		// Create the GLText
+		glText = new GLText( gl, context.getAssets() );
+
+		// Load the font from file (set size + padding), creates the texture
+		// NOTE: after a successful call to this the font is ready for rendering!
+		glText.load( "Roboto-Regular.ttf", 14, 2, 2 );  // Create Font (Height: 14 Pixels / X+Y Padding 2 Pixels)
+
+		// Get all the buffers ready
+		setAllBuffers();
+	} 
+
 	public void onDrawFrame(GL10 gl) { 
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT); 
 		gl.glMatrixMode(GL10.GL_MODELVIEW); 
@@ -81,27 +95,33 @@ class PieChart implements Renderer {
 		if(data==null)
 			return;
 
-		//Matrix.multiplyMM(mVPMatrix, 0, mProjMatrix, 0, mVMatrix, 0);
+		// enable texture + alpha blending
+		// NOTE: this is required for text rendering! we could incorporate it into
+		// the GLText class, but then it would be called multiple times (which impacts performance).
+		gl.glEnable( GL10.GL_TEXTURE_2D );              // Enable Texture Mapping
+		gl.glEnable( GL10.GL_BLEND );                   // Enable Alpha Blend
+		gl.glBlendFunc( GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA );  // Set Alpha Blend Function
 
-
-		//GL11 gl.glGetDoublev(gl.GL_MODELVIEW, mVPMatrix);
-
-		/*glText.begin( 1.0f, 1.0f, 1.0f, 1.0f, mVPMatrix );         // Begin Text Rendering (Set Color WHITE)
-		glText.drawC("Test String 3D!", 0f, 0f, 0f, 0, -30, 0);
-		//		glText.drawC( "Test String :)", 0, 0, 0 );          // Draw Test String
-		glText.draw( "Diagonal 1", 40, 40, 40);                // Draw Test String
-		//glText.draw( "Column 1", 100, 100, 90);              // Draw Test String
+		// TEST: render some strings with the font
+		glText.begin( 1.0f, 1.0f, 1.0f, 1.0f );         // Begin Text Rendering (Set Color WHITE)
+		glText.draw( "Test String :)", 0, 0 );          // Draw Test String
 		glText.end();                                   // End Text Rendering
-*/
+
+		//glText.draw( "The End.", 50, 150 + glText.getCharHeight() );  // Draw Test String
+		
+		// disable texture + alpha
+		gl.glDisable( GL10.GL_BLEND );                  // Disable Alpha Blend
+		gl.glDisable( GL10.GL_TEXTURE_2D );             // Disable Texture Mapping*/
 
 		//TODO draw legend
 		//TODO make some dummy thing appear when no data
 
-		gl.glTranslatef(0.0f, 0.0f, -3.0f); 
-		gl.glRotatef(mAngleX, 1, 0, 0); 
-		gl.glRotatef(mAngleY, 0, 1, 0); 
-		gl.glRotatef(mAngleZ, 0, 0, 1); 
 
+		//TODO make this correct for landascape mode too
+		gl.glTranslatef(width/2, height/2, 0.0f);
+		gl.glScalef(width/2, width/2, 0.0f);
+		
+		
 		gl.glVertexPointer(3, GL10.GL_FLOAT, 0, mVertexBuffer); 
 
 		// Draw all triangles
@@ -109,7 +129,6 @@ class PieChart implements Renderer {
 		for(int i = 0 ; i < data.size() ; i++)
 		{
 			gl.glColor4f(Colors[(i*3) % Colors.length], Colors[((i*3) + 1) % Colors.length], Colors[((i*3) + 2) % Colors.length], 1.0f);
-
 
 			//swap color
 			gl.glDrawElements(GL10.GL_TRIANGLES, mNumOfIndices[i], 
@@ -192,32 +211,24 @@ class PieChart implements Renderer {
 		mIndicesBuffer.position(0); 
 	}
 
-
-	@Override
-	public void onSurfaceCreated(GL10 gl, EGLConfig arg1) {
-		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); 
-		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
-		gl.glEnable(GL10.GL_DEPTH_TEST);
-
-		gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
-
-		// Create the GLText
-		//glText = new GLText(context.getAssets());
-
-		// Load the font from file (set size + padding), creates the texture
-		// NOTE: after a successful call to this the font is ready for rendering!
-		//glText.load( "Roboto-Regular.ttf", 14, 2, 2 );  // Create Font (Height: 14 Pixels / X+Y Padding 2 Pixels)
-
-		// enable texture + alpha blending
-		//GLES20.glEnable(GLES20.GL_BLEND);
-		//GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-
-		// Get all the buffers ready
-		setAllBuffers();
-	} 
-
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		// Save width and height
+		this.width = width;                             // Save Current Width
+		this.height = height;                           // Save Current Height
+
+		gl.glViewport( 0, 0, width, height );
+
+		// Setup orthographic projection
+		gl.glMatrixMode( GL10.GL_PROJECTION );          // Activate Projection Matrix
+		gl.glLoadIdentity();                            // Load Identity Matrix
+		gl.glOrthof(                                    // Set Ortho Projection (Left,Right,Bottom,Top,Front,Back)
+				0, width,
+				0, height,
+				1.0f, -1.0f
+				);
+
+
+		/*// Save width and height
 		this.width = width;                             // Save Current Width
 		this.height = height;                           // Save Current Height
 		float aspect = (float)width / height; 
@@ -225,23 +236,17 @@ class PieChart implements Renderer {
 		gl.glViewport(0, 0, width, height); 
 		gl.glMatrixMode(GL10.GL_PROJECTION); 
 		gl.glLoadIdentity();
-		// Take into account device orientation
-		if (width > height) {
-			Matrix.frustumM(mProjMatrix, 0, -aspect, aspect, -1, 1, 1, 10);
-			gl.glFrustumf(-aspect, aspect, -1.0f, 1.0f, 1.0f, 10.0f); 
-		}
-		else
-		{
-			Matrix.frustumM(mProjMatrix, 0, -1, 1, -1/aspect, 1/aspect, 1, 10);
-			gl.glFrustumf(-1, 1, -1/aspect, 1/aspect, 1, 10); 
-		}
 
-		//TODO: Is this wrong?
-		Matrix.setIdentityM(mVMatrix, 0);
+		// Take into account device orientation
+		if (width > height)
+			gl.glFrustumf(-aspect, aspect, -1.0f, 1.0f, 1.0f, 10.0f); 
+		else
+			gl.glFrustumf(-1, 1, -1/aspect, 1/aspect, 1, 10);*/
+
 	} 
 
 	public boolean onTouchEvent(MotionEvent e) { 
-		float x = e.getX();
+		/*float x = e.getX();
 		float y = e.getY();
 		switch (e.getAction()) { 
 		case MotionEvent.ACTION_MOVE: 
@@ -252,7 +257,7 @@ class PieChart implements Renderer {
 			break; 
 		} 
 		mPreviousX = x; 
-		mPreviousY = y; 
-		return true; 
+		mPreviousY = y; */
+		return true;
 	}
 }

@@ -1,6 +1,5 @@
 package opengl.text;
 
-
 class TextureRegion {
 
    //--Members--//
