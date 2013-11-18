@@ -98,42 +98,51 @@ class PieChart implements Renderer {
 		if(data==null)
 			return;
 
-		int text_center;
 		int label_size = 40;
-		int text_offset;
+		int text_center_y;
+		int text_center_x;
 
 		//landscape
 		if(width > height)
 		{
-			text_center = height;
-			text_offset = height;
+			text_center_y = height;
+			text_center_x = height;
 		}
 		else
 		{
-			text_center = height - width;
-			text_offset = 0;
+			text_center_y = height - width;
+			text_center_x = 0;
 		}
 
+		text_center_y -= (10 + (1.5 * glText.getCharHeight()));
+		text_center_x += 10;
+		
+		float maxLabelSize = -1;
+		for(int i = 0 ; i < data.size() ; i++)
+			if(glText.getLength(data.get(i).getName()) > maxLabelSize)
+				maxLabelSize = glText.getLength(data.get(i).getName());
+		
+		//1 label(offset) + 1 label(real) + 0.5 label(offset) + text
+		maxLabelSize += label_size * 2.5f;
+		int numberLabelsPerRow = (int)((width - text_center_x) / maxLabelSize);
 
 
 		gl.glPushMatrix();
 		//go to begining position
-		gl.glTranslatef(text_offset,  text_center, 0.0f);
+		gl.glTranslatef(text_center_x,  text_center_y, 0.0f);
 		
+		gl.glPushMatrix();
+		int row = 0;
 		for(int i = 0 ; i < data.size() ; i++)
 		{
-			//pass to next position
-			gl.glTranslatef(0.0f,  - glText.getCharHeight(), 0.0f);
-
-
 			gl.glVertexPointer(3, GL10.GL_FLOAT, 0, mLabelVB); 
 
 			gl.glPushMatrix();
 
+			gl.glTranslatef(label_size,  0.0f, 0.0f);
 			gl.glScalef(label_size , glText.getCharHeight(), 0.0f);
 
 			gl.glColor4f(Colors[(i*3) % Colors.length], Colors[((i*3) + 1) % Colors.length], Colors[((i*3) + 2) % Colors.length], 1.0f);
-
 			gl.glDrawElements(GL10.GL_TRIANGLES, mLabelIB.capacity(), 
 					GL10.GL_UNSIGNED_SHORT, mLabelIB); 
 
@@ -148,13 +157,28 @@ class PieChart implements Renderer {
 			gl.glBlendFunc( GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA );  // Set Alpha Blend Function
 
 			glText.begin( 1.0f, 1.0f, 1.0f, 1.0f );
-			glText.draw( data.get(i).getName(), label_size, 0.0f );
+			glText.draw( data.get(i).getName(), label_size * 2.5f, 0.0f );
 			glText.end();
 
 			// disable texture + alpha
 			gl.glDisable( GL10.GL_BLEND );                  // Disable Alpha Blend
 			gl.glDisable( GL10.GL_TEXTURE_2D );             // Disable Texture Mapping
+			
+			row++;
+			if(row >= numberLabelsPerRow)
+			{
+				//pass next line
+				gl.glPopMatrix();
+				gl.glTranslatef(0.0f,  - 1.5f * glText.getCharHeight(), 0.0f);
+				gl.glPushMatrix();
+				row = 0;
+			}
+			else
+				//pass to next row
+				gl.glTranslatef(maxLabelSize,  0.0f, 0.0f);
 		}
+		//first pop to pop line to line matrix saved
+		gl.glPopMatrix();
 		gl.glPopMatrix();
 	}
 
