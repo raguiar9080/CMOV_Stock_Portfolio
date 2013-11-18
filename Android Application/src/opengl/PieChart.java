@@ -34,8 +34,10 @@ class PieChart implements Renderer {
 	private Integer sum_values;
 
 	private Context context= null;
-	private FloatBuffer mVertexBuffer = null; 
-	private ShortBuffer mIndicesBuffer = null; 
+	private FloatBuffer mPieVB = null; 
+	private FloatBuffer mLabelVB = null;
+	private ShortBuffer mPieIB = null; 
+	private ShortBuffer mLabelIB = null;
 	private int[] mNumOfIndices = null;   
 	private GLText glText;
 
@@ -67,7 +69,7 @@ class PieChart implements Renderer {
 	public void onSurfaceCreated(GL10 gl, EGLConfig arg1) {
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); 
 		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
-		
+
 		//Cannot Enable due to text, dunno why :S
 		//gl.glEnable(GL10.GL_DEPTH_TEST);
 
@@ -88,41 +90,95 @@ class PieChart implements Renderer {
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT); 
 		gl.glMatrixMode(GL10.GL_MODELVIEW); 
 		gl.glLoadIdentity();
+		this.DrawPieLabels(gl);
 		this.DrawPieChart(gl);
 	}
+
+	public void DrawPieLabels(GL10 gl) {
+		if(data==null)
+			return;
+
+		int text_center;
+		int label_size = 40;
+		int text_offset;
+
+		//landscape
+		if(width > height)
+		{
+			text_center = height;
+			text_offset = height;
+		}
+		else
+		{
+			text_center = height - width;
+			text_offset = 0;
+		}
+
+
+
+		gl.glPushMatrix();
+		//go to begining position
+		gl.glTranslatef(text_offset,  text_center, 0.0f);
+		
+		for(int i = 0 ; i < data.size() ; i++)
+		{
+			//pass to next position
+			gl.glTranslatef(0.0f,  - glText.getCharHeight(), 0.0f);
+
+
+			gl.glVertexPointer(3, GL10.GL_FLOAT, 0, mLabelVB); 
+
+			gl.glPushMatrix();
+
+			gl.glScalef(label_size , glText.getCharHeight(), 0.0f);
+
+			gl.glColor4f(Colors[(i*3) % Colors.length], Colors[((i*3) + 1) % Colors.length], Colors[((i*3) + 2) % Colors.length], 1.0f);
+
+			gl.glDrawElements(GL10.GL_TRIANGLES, mLabelIB.capacity(), 
+					GL10.GL_UNSIGNED_SHORT, mLabelIB); 
+
+			gl.glPopMatrix();
+
+
+			// enable texture + alpha blending
+			// NOTE: this is required for text rendering! we could incorporate it into
+			// the GLText class, but then it would be called multiple times (which impacts performance).
+			gl.glEnable( GL10.GL_TEXTURE_2D );              // Enable Texture Mapping
+			gl.glEnable( GL10.GL_BLEND );                   // Enable Alpha Blend
+			gl.glBlendFunc( GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA );  // Set Alpha Blend Function
+
+			glText.begin( 1.0f, 1.0f, 1.0f, 1.0f );
+			glText.draw( data.get(i).getName(), label_size, 0.0f );
+			glText.end();
+
+			// disable texture + alpha
+			gl.glDisable( GL10.GL_BLEND );                  // Disable Alpha Blend
+			gl.glDisable( GL10.GL_TEXTURE_2D );             // Disable Texture Mapping
+		}
+		gl.glPopMatrix();
+	}
+
 
 	public void DrawPieChart(GL10 gl) {
 		if(data==null)
 			return;
 
-		// enable texture + alpha blending
-		// NOTE: this is required for text rendering! we could incorporate it into
-		// the GLText class, but then it would be called multiple times (which impacts performance).
-		gl.glEnable( GL10.GL_TEXTURE_2D );              // Enable Texture Mapping
-		gl.glEnable( GL10.GL_BLEND );                   // Enable Alpha Blend
-		gl.glBlendFunc( GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA );  // Set Alpha Blend Function
-
-		// TEST: render some strings with the font
-		glText.begin( 1.0f, 1.0f, 1.0f, 1.0f );         // Begin Text Rendering (Set Color WHITE)
-		glText.draw( "Test String :)", 0, 0 );          // Draw Test String
-		glText.end();                                   // End Text Rendering
-
-		//glText.draw( "The End.", 50, 150 + glText.getCharHeight() );  // Draw Test String
-		
-		// disable texture + alpha
-		gl.glDisable( GL10.GL_BLEND );                  // Disable Alpha Blend
-		gl.glDisable( GL10.GL_TEXTURE_2D );             // Disable Texture Mapping*/
-
-		//TODO draw legend
 		//TODO make some dummy thing appear when no data
 
+		gl.glPushMatrix();
+		//landscape
+		if(width > height)
+		{
+			gl.glTranslatef(height/2, height/2, 0.0f);
+			gl.glScalef(height/2, height/2, 0.0f);
+		}
+		else
+		{
+			gl.glTranslatef(width/2, height - width/2, 0.0f);
+			gl.glScalef(width/2, width/2, 0.0f);
+		}
 
-		//TODO make this correct for landascape mode too
-		gl.glTranslatef(width/2, height/2, 0.0f);
-		gl.glScalef(width/2, width/2, 0.0f);
-		
-		
-		gl.glVertexPointer(3, GL10.GL_FLOAT, 0, mVertexBuffer); 
+		gl.glVertexPointer(3, GL10.GL_FLOAT, 0, mPieVB); 
 
 		// Draw all triangles
 		int offset = 0;
@@ -132,13 +188,44 @@ class PieChart implements Renderer {
 
 			//swap color
 			gl.glDrawElements(GL10.GL_TRIANGLES, mNumOfIndices[i], 
-					GL10.GL_UNSIGNED_SHORT, mIndicesBuffer.position(offset)); 
+					GL10.GL_UNSIGNED_SHORT, mPieIB.position(offset)); 
 			offset += mNumOfIndices[i];
 
 		}
+
+		gl.glPopMatrix();
 	}
 
 	private void setAllBuffers(){
+
+		float labelCoords[] = {
+				// X, Y, Z
+				0.0f, 0.0f, 0.0f,
+				1.0f, 0.0f, 0.0f,
+				1.0f, 1.0f, 0.0f,
+				0.0f, 1.0f, 0.0f,
+		}; 
+		short labelIndexList[] = {
+				0, 1, 2,
+				0, 2, 3,
+		};
+
+
+		// initialize vertex Buffer for triangle 
+		ByteBuffer vbb_label = ByteBuffer.allocateDirect(labelCoords.length * 4); // (# of coordinate values * 4 bytes per float)				
+
+		vbb_label.order(ByteOrder.nativeOrder());// use the device hardware's native byte order
+		mLabelVB = vbb_label.asFloatBuffer(); // create a floating point buffer from the ByteBuffer
+		mLabelVB.put(labelCoords); // add the coordinates to the FloatBuffer
+		mLabelVB.position(0); // set the buffer to read the first coordinate
+
+		ByteBuffer tbibb_label = ByteBuffer.allocateDirect(labelIndexList.length * 2); 
+		tbibb_label.order(ByteOrder.nativeOrder());
+		mLabelIB = tbibb_label.asShortBuffer();
+		mLabelIB.put(labelIndexList); 
+		mLabelIB.position(0); 
+
+
 
 		float vertexlist[] = new float [(segments + 1)  * Dimensions];
 
@@ -159,14 +246,14 @@ class PieChart implements Renderer {
 
 		ByteBuffer vbb = ByteBuffer.allocateDirect(vertexlist.length * 4); 
 		vbb.order(ByteOrder.nativeOrder());
-		mVertexBuffer = vbb.asFloatBuffer();
-		mVertexBuffer.put(vertexlist); 
-		mVertexBuffer.position(0); 
+		mPieVB = vbb.asFloatBuffer();
+		mPieVB.put(vertexlist); 
+		mPieVB.position(0); 
 		// at this stage vertexlist has the coordinates of a circle, 1st vertex it's the center
 
 		// Set buffer with vertex indices
 		// this is made with triangles. always : center, v1, vnext. repeat ad infinitum
-		short pieindexlist[] = new short[segments * Dimensions];
+		short pieIndexList[] = new short[segments * Dimensions];
 		short j = 0;
 		double current_sum_perc = 0.0;
 		int current_index = 0;
@@ -175,9 +262,9 @@ class PieChart implements Renderer {
 		for (short i = 0 ; i < segments - 1; i++, j+=Dimensions)
 		{
 			//line not needed due to initialization to zero
-			//pieindexlist[j] = 0;
-			pieindexlist[j + 1] = (short) (i + 1);
-			pieindexlist[j + 2] = (short) (i + 2);
+			//pieIndexList[j] = 0;
+			pieIndexList[j + 1] = (short) (i + 1);
+			pieIndexList[j + 2] = (short) (i + 2);
 
 			//last slice of pie, make circle complete
 			if(current_index == data.size() - 1)
@@ -200,15 +287,15 @@ class PieChart implements Renderer {
 		}
 
 		//line not needed due to initialization to zero
-		//pieindexlist[j] = 0;
-		pieindexlist[j + 1] = (short) (segments);
-		pieindexlist[j + 2] = 1;
+		//pieIndexList[j] = 0;
+		pieIndexList[j + 1] = (short) (segments);
+		pieIndexList[j + 2] = 1;
 
-		ByteBuffer tbibb = ByteBuffer.allocateDirect(pieindexlist.length * 2); 
+		ByteBuffer tbibb = ByteBuffer.allocateDirect(pieIndexList.length * 2); 
 		tbibb.order(ByteOrder.nativeOrder());
-		mIndicesBuffer = tbibb.asShortBuffer();
-		mIndicesBuffer.put(pieindexlist); 
-		mIndicesBuffer.position(0); 
+		mPieIB = tbibb.asShortBuffer();
+		mPieIB.put(pieIndexList); 
+		mPieIB.position(0); 
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
