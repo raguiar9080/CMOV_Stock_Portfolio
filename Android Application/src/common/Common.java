@@ -19,6 +19,9 @@ import android.os.Environment;
 
 @SuppressLint("SimpleDateFormat")
 public class Common {
+	public static Integer REQ_CODE_TICK = 1;
+	public static Integer ADD = 0;
+	public static Integer EDIT = 1;
 	public static List<Stock> stocks = new ArrayList<Stock>();
 	public static Integer selected = -1;
 
@@ -93,9 +96,9 @@ public class Common {
 		return null;
 	}
 
-	public static Integer getSumValue()
+	public static Double getSumValue()
 	{
-		Integer count = 0;
+		Double count = 0.0;
 		for (Stock stock : stocks)
 		{
 			count += stock.getTotalValue();

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.AsyncTask;
@@ -80,7 +79,7 @@ public class TotalPortfolio extends Fragment {
 					
 					tmp.setExchanges(tick.getInt("Exchanges"));
 					tmp.setLastCheck(tick.getString("Date") + " " + tick.getString("Time"));
-					tmp.setValue(tick.getInt("Value"));
+					tmp.setValue(tick.getDouble("Value"));
 					tmp.setFullName(tick.getString("Name"));
 
 					Common.stocks.set(i, tmp);
@@ -90,7 +89,7 @@ public class TotalPortfolio extends Fragment {
 				//Redraw(getView());
 
 				Toast.makeText(getActivity(), "Data Updated", Toast.LENGTH_SHORT).show();
-			} catch (JSONException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			System.out.println(result.toString());

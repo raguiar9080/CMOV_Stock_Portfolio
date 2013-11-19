@@ -7,7 +7,7 @@ public class Stock implements Serializable {
 	private String tick = "Tick";
 	private String fullName = "Name";
 	private Integer owned = 0;
-	private Integer value = 0;
+	private Double value = 0.0;
 	private String lastCheck = "Date";
 	private Integer exchanges = 0;
 
@@ -44,14 +44,14 @@ public class Stock implements Serializable {
 	public void setOwned(Integer owned) {
 		this.owned = owned;
 	}
-	public Integer getValue() {
+	public Double getValue() {
 		return value;
 	}
-	public void setValue(Integer value) {
+	public void setValue(Double value) {
 		this.value = value;
 	}
 	
-	public Integer getTotalValue() {
+	public Double getTotalValue() {
 		return value * owned;
 	}
 	

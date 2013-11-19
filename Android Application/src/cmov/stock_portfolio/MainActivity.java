@@ -49,10 +49,10 @@ ActionBar.TabListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Common.loadStocks(getApplication());
-
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		Common.loadStocks(getApplication());
 
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
