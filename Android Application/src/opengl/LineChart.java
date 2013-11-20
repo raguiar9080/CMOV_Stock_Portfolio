@@ -10,17 +10,16 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import opengl.text.GLText;
-
-import org.apache.http.NameValuePair;
-
 import android.content.Context;
 import android.opengl.GLSurfaceView.Renderer;
+import android.util.Pair;
 import android.view.MotionEvent;
 
-class PieChart implements Renderer {
+class LineChart implements Renderer {
 	private final int Dimensions = 3;
-	private final Short segments = 360;
-	private final Double radius = 1.0;
+	private final Double drawRange = 2.0;
+	private float drawStart = -1;
+
 	private final float[] Colors = {
 			1.0f , 1.0f , 1.0f,	
 			1.0f , 0.0f , 0.0f,
@@ -28,17 +27,22 @@ class PieChart implements Renderer {
 			0.0f , 0.0f , 1.0f,
 			0.0f , 1.0f , 1.0f,
 	};
+	
+	private final float[] BackColor = {
+			0.5f, 0.5f, 0.5f,
+	};
 
 
-	private ArrayList<NameValuePair> data;
-	private Integer sum_values;
+	private ArrayList<Pair<String, ArrayList<Double>>> data = null;
+	private ArrayList<Pair<Double, Double>> mMaxValues= new ArrayList<Pair<Double, Double>>();
 
 	private Context context= null;
-	private FloatBuffer mPieVB = null; 
+	private FloatBuffer mLineVB = null; 
 	private FloatBuffer mLabelVB = null;
-	private ShortBuffer mPieIB = null; 
+	private FloatBuffer mBackVB = null;
+	private ShortBuffer mLineIB = null; 
 	private ShortBuffer mLabelIB = null;
-	private int[] mNumOfIndices = null;   
+	private ShortBuffer mBackIB = null;
 	private GLText glText;
 
 	private int width;
@@ -51,19 +55,9 @@ class PieChart implements Renderer {
 	private float mPreviousY; 
 	private final float TOUCH_SCALE_FACTOR = 0.6f;*/
 
-	public PieChart(ArrayList<NameValuePair> elems, Context context) {
+	public LineChart(ArrayList<Pair<String, ArrayList<Double>>> elems, Context context) {
 		this.context = context;
 		this.data = elems;
-		
-		//create N partitions in pie chart
-		if(elems!=null)
-		{
-			mNumOfIndices = new int[elems.size()];
-
-			sum_values = 0;
-			for (NameValuePair value : elems)
-				sum_values += Integer.parseInt(value.getValue());		
-		}
 	} 
 
 	@Override
@@ -91,10 +85,11 @@ class PieChart implements Renderer {
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT); 
 		gl.glMatrixMode(GL10.GL_MODELVIEW); 
 		gl.glLoadIdentity();
-		this.DrawPieLabels(gl);
-		this.DrawPieChart(gl);
+		this.DrawLineLabels(gl);
+		this.DrawBack(gl);
+		this.DrawLineChart(gl);
 	}
-	
+
 	//just a function to automate writing text
 	public void DrawText(GL10 gl, String text, float pos_x, float pos_y)
 	{
@@ -114,7 +109,7 @@ class PieChart implements Renderer {
 		gl.glDisable( GL10.GL_TEXTURE_2D );             // Disable Texture Mapping
 	}
 
-	public void DrawPieLabels(GL10 gl) {
+	public void DrawLineLabels(GL10 gl) {
 		if(data==null)
 		{
 			glText.load( "Roboto-Regular.ttf", 80, 2, 2 );
@@ -141,12 +136,12 @@ class PieChart implements Renderer {
 
 		text_center_y -= (10 + (1.5 * glText.getCharHeight()));
 		text_center_x += 10;
-		
+
 		float maxLabelSize = -1;
 		for(int i = 0 ; i < data.size() ; i++)
-			if(glText.getLength(data.get(i).getName()) > maxLabelSize)
-				maxLabelSize = glText.getLength(data.get(i).getName());
-		
+			if(glText.getLength(data.get(i).first) > maxLabelSize)
+				maxLabelSize = glText.getLength(data.get(i).first);
+
 		//1 label(offset) + 1 label(real) + 0.5 label(offset) + text
 		maxLabelSize += label_size * 2.5f;
 		int numberLabelsPerRow = (int)((width - text_center_x) / maxLabelSize);
@@ -155,7 +150,7 @@ class PieChart implements Renderer {
 		gl.glPushMatrix();
 		//go to begining position
 		gl.glTranslatef(text_center_x,  text_center_y, 0.0f);
-		
+
 		gl.glPushMatrix();
 		int row = 0;
 		for(int i = 0 ; i < data.size() ; i++)
@@ -172,9 +167,9 @@ class PieChart implements Renderer {
 					GL10.GL_UNSIGNED_SHORT, mLabelIB); 
 
 			gl.glPopMatrix();
-			
-			DrawText(gl, data.get(i).getName(), label_size * 2.5f, 0.0f );
-		
+
+			DrawText(gl, data.get(i).first, label_size * 2.5f, 0.0f );
+
 			row++;
 			if(row >= numberLabelsPerRow)
 			{
@@ -193,8 +188,37 @@ class PieChart implements Renderer {
 		gl.glPopMatrix();
 	}
 
+	public void DrawBack(GL10 gl)
+	{
+		if(data==null)
+			return;
 
-	public void DrawPieChart(GL10 gl) {
+		gl.glPushMatrix();
+		//landscape
+		if(width > height)
+		{
+			gl.glTranslatef(height/2, height/2, -0.5f);
+			gl.glScalef(height/2, height/2, 0.0f);
+		}
+		else
+		{
+			gl.glTranslatef(width/2, height - width/2, -0.5f);
+			gl.glScalef(width/2, width/2, 0.0f);
+		}
+
+		//So it doesnt hit borders
+		gl.glScalef(0.9f, 0.9f, 0.0f);
+
+		gl.glVertexPointer(3, GL10.GL_FLOAT, 0, mBackVB);
+
+		gl.glColor4f(BackColor[0], BackColor[1], BackColor[2], 1.0f);
+		gl.glDrawElements(GL10.GL_LINE_STRIP, mBackIB.capacity(), 
+				GL10.GL_UNSIGNED_SHORT, mBackIB);
+
+		gl.glPopMatrix();
+	}
+
+	public void DrawLineChart(GL10 gl) {
 		if(data==null)
 			return;
 
@@ -211,18 +235,27 @@ class PieChart implements Renderer {
 			gl.glScalef(width/2, width/2, 0.0f);
 		}
 
-		gl.glVertexPointer(3, GL10.GL_FLOAT, 0, mPieVB); 
+		//So it doesnt hit borders
+		gl.glScalef(0.9f, 0.9f, 0.0f);
 
-		// Draw all triangles
+		gl.glVertexPointer(3, GL10.GL_FLOAT, 0, mLineVB);
+
+		// Draw all lines
 		int offset = 0;
 		for(int i = 0 ; i < data.size() ; i++)
 		{
 			gl.glColor4f(Colors[(i*3) % Colors.length], Colors[((i*3) + 1) % Colors.length], Colors[((i*3) + 2) % Colors.length], 1.0f);
 
 			//swap color
-			gl.glDrawElements(GL10.GL_TRIANGLES, mNumOfIndices[i], 
-					GL10.GL_UNSIGNED_SHORT, mPieIB.position(offset)); 
-			offset += mNumOfIndices[i];
+			gl.glDrawElements(GL10.GL_LINE_STRIP, data.get(i).second.size(), 
+					GL10.GL_UNSIGNED_SHORT, mLineIB.position(offset)); 
+			
+			/*for(int index = offset ; index < offset + data.get(i).second.size()  ; index++)
+			{
+				Double value = data.get(i).second.get(index - offset);
+				DrawText(gl, value.toString(), mLineVB.get(index), mLineVB.get(index + 1));
+			}*/
+			offset += data.get(i).second.size();
 
 		}
 
@@ -232,7 +265,7 @@ class PieChart implements Renderer {
 	private void setAllBuffers(){
 		if(data == null)
 			return;
-		
+
 		float labelCoords[] = {
 				// X, Y, Z
 				0.0f, 0.0f, 0.0f,
@@ -262,75 +295,88 @@ class PieChart implements Renderer {
 
 
 
-		float vertexlist[] = new float [(segments + 1)  * Dimensions];
+		//INIT OF LINECHART BUFFERS
+		int totalNumberPoints = 0;
 
-		// Create the circle in the coordinates origin
-		vertexlist[0] = 0.0f;
-		vertexlist[1] = 0.0f;
-		vertexlist[2] = 0.0f; 
-
-		int vertexnumber = 3;
-		for (int a = 0; a < 360; a += 360 / segments)
+		for (Pair<String, ArrayList<Double>> elem : data)
 		{
-			double angle= Math.toRadians(a);
-			vertexlist[vertexnumber] = (float) (Math.cos(angle) * this.radius);
-			vertexlist[vertexnumber + 1] = (float) (Math.sin(angle) * this.radius);
-			vertexlist[vertexnumber + 2] = 0.0f;
-			vertexnumber+=Dimensions;
+			Double max = Double.MIN_VALUE;
+			Double min = Double.MAX_VALUE;
+			totalNumberPoints += elem.second.size();
+			for (Double value : elem.second)
+			{
+				if(value > max)
+					max = value;
+				if(value < min)
+					min = value;
+			}
+			mMaxValues.add(new Pair<Double,Double> (min,max));
+		}
+
+		float vertexlist[] = new float [totalNumberPoints * Dimensions];
+
+		//draw x = [-1,1]
+		//draw y = [-1,1]
+		int series = 0;
+		int elem = 0;
+		int elems_x = data.get(series).second.size() - 1;
+		for (int a = 0; a < totalNumberPoints; a++, elem++)
+		{
+			if(elem > elems_x)
+			{
+				elem=0;
+				series++;
+				elems_x = data.get(series).second.size() - 1;
+			}
+			Double value = data.get(series).second.get(elem);
+			Double range = mMaxValues.get(series).second - mMaxValues.get(series).first;
+
+
+			vertexlist[a * Dimensions] = (float) (drawStart + (elem / ((float)(elems_x))) * this.drawRange);
+			vertexlist[(a * Dimensions) + 1] = (float) (drawStart + ((value - mMaxValues.get(series).first) / range) * this.drawRange);
+			vertexlist[(a * Dimensions) + 2] = 0.0f;
 		}
 
 		ByteBuffer vbb = ByteBuffer.allocateDirect(vertexlist.length * 4); 
 		vbb.order(ByteOrder.nativeOrder());
-		mPieVB = vbb.asFloatBuffer();
-		mPieVB.put(vertexlist); 
-		mPieVB.position(0); 
-		// at this stage vertexlist has the coordinates of a circle, 1st vertex it's the center
+		mLineVB = vbb.asFloatBuffer();
+		mLineVB.put(vertexlist); 
+		mLineVB.position(0); 
 
-		// Set buffer with vertex indices
-		// this is made with triangles. always : center, v1, vnext. repeat ad infinitum
-		short pieIndexList[] = new short[segments * Dimensions];
-		short j = 0;
-		double current_sum_perc = 0.0;
-		int current_index = 0;
-		int last_vertex_sum = 0;
-		double current_perc = Double.parseDouble(data.get(0).getValue()) / sum_values;
-		for (short i = 0 ; i < segments - 1; i++, j+=Dimensions)
-		{
-			//line not needed due to initialization to zero
-			//pieIndexList[j] = 0;
-			pieIndexList[j + 1] = (short) (i + 1);
-			pieIndexList[j + 2] = (short) (i + 2);
 
-			//last slice of pie, make circle complete
-			if(current_index == data.size() - 1)
-			{
-				mNumOfIndices[current_index] = (segments * Dimensions) - last_vertex_sum;
-				current_index++;
-			}
-			else if(current_index < data.size() - 1)
-			{
-				//checking percentages to see if we reach a new slice
-				if((((i + 1.0) / segments) - current_sum_perc) > current_perc)
-				{
-					current_sum_perc += current_perc;
-					mNumOfIndices[current_index] = j - last_vertex_sum;
-					last_vertex_sum = j;
-					current_index ++;
-					current_perc = Double.parseDouble(data.get(current_index).getValue()) / sum_values;
-				}
-			}
-		}
+		short lineIndexList[] = new short[totalNumberPoints];
+		for (short i = 0 ; i < totalNumberPoints; i++)
+			lineIndexList[i] = i;
 
-		//line not needed due to initialization to zero
-		//pieIndexList[j] = 0;
-		pieIndexList[j + 1] = (short) (segments);
-		pieIndexList[j + 2] = 1;
-
-		ByteBuffer tbibb = ByteBuffer.allocateDirect(pieIndexList.length * 2); 
+		ByteBuffer tbibb = ByteBuffer.allocateDirect(lineIndexList.length * 2); 
 		tbibb.order(ByteOrder.nativeOrder());
-		mPieIB = tbibb.asShortBuffer();
-		mPieIB.put(pieIndexList); 
-		mPieIB.position(0); 
+		mLineIB = tbibb.asShortBuffer();
+		mLineIB.put(lineIndexList); 
+		mLineIB.position(0);
+
+		//BACK AREA
+		float backvertexlist[] = {
+				-1.0f, -1.0f, 0.0f,
+				-1.0f, 1.0f, 0.0f,
+				1.0f, -1.0f, 0.0f,
+		};
+
+		short backIndexList[] = {
+				0, 1,
+				0, 2,
+		};
+
+		ByteBuffer back_vbb = ByteBuffer.allocateDirect(backvertexlist.length * 4); 
+		back_vbb.order(ByteOrder.nativeOrder());
+		mBackVB = back_vbb.asFloatBuffer();
+		mBackVB.put(backvertexlist); 
+		mBackVB.position(0); 
+
+		ByteBuffer back_tbibb = ByteBuffer.allocateDirect(backIndexList.length * 2); 
+		back_tbibb.order(ByteOrder.nativeOrder());
+		mBackIB = back_tbibb.asShortBuffer();
+		mBackIB.put(backIndexList); 
+		mBackIB.position(0);
 	}
 
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -348,7 +394,7 @@ class PieChart implements Renderer {
 				0, height,
 				1.0f, -1.0f
 				);
-		
+
 		/*// Save width and height
 		float aspect = (float)width / height; 
 
