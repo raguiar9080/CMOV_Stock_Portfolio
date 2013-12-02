@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_add"
+        android:icon="@drawable/add"
+        android:showAsAction="ifRoom"
+        android:title="Add"/>
+    <item
+        android:id="@+id/action_edit"
+        android:icon="@drawable/edit"
+        android:showAsAction="ifRoom"
+        android:title="Edit"/>
+    <item
+        android:id="@+id/action_remove"
+        android:icon="@drawable/remove"
+        android:showAsAction="ifRoom"
+        android:title="Remove"/>
+
+</menu>

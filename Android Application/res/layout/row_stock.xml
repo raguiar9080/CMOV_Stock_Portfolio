@@ -1,31 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="0dip"
     android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_weight="1"
+    android:baselineAligned="false"
+    android:orientation="vertical"
     android:padding="6dip" >
 
-    <LinearLayout
-        android:layout_width="0dip"
-        android:layout_height="fill_parent"
+    <TextView
+        android:id="@+id/toptext"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
         android:layout_weight="1"
-        android:orientation="vertical" >
+        android:gravity="center_vertical"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <TextView
-            android:id="@+id/toptext"
-            android:layout_width="fill_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <TextView
-            android:id="@+id/bottomtext"
-            android:layout_width="fill_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/bottomtext"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:ellipsize="marquee"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </LinearLayout>

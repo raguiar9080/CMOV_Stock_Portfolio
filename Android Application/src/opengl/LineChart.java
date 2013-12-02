@@ -29,7 +29,11 @@ class LineChart implements Renderer {
 	};
 	
 	private final float[] BackColor = {
-			0.5f, 0.5f, 0.5f,
+			0.0f, 0.0f, 0.0f, 0.0f
+	};
+	
+	private final float[] TextColor = {
+			0.0f, 0.0f, 0.0f, 1.0f
 	};
 
 
@@ -62,8 +66,13 @@ class LineChart implements Renderer {
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig arg1) {
-		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); 
-		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
+		gl.glClearColor(BackColor[0],BackColor[1],BackColor[2],BackColor[3]); 
+
+		gl.glDisable(GL10.GL_DITHER);
+		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST);
+
+		gl.glEnable(GL10.GL_CULL_FACE);
+		gl.glShadeModel(GL10.GL_SMOOTH);
 
 		//Cannot Enable due to text, dunno why :S
 		//gl.glEnable(GL10.GL_DEPTH_TEST);
@@ -100,7 +109,7 @@ class LineChart implements Renderer {
 		gl.glEnable( GL10.GL_BLEND );                   // Enable Alpha Blend
 		gl.glBlendFunc( GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA );  // Set Alpha Blend Function
 
-		glText.begin( 1.0f, 1.0f, 1.0f, 1.0f );
+		glText.begin( TextColor[0], TextColor[1], TextColor[2], TextColor[3]);
 		glText.draw(text, pos_x, pos_y );
 		glText.end();
 

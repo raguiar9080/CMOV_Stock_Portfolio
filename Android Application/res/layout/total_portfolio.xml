@@ -1,91 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/stockInformation"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:visibility="visible" >
 
     <LinearLayout
-        android:id="@+id/stockInformation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="visible" >
+        android:orientation="vertical" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="horizontal" >
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <RelativeLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:layout_weight="1" >
 
-                <RelativeLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" >
+                    android:layout_centerInParent="true"
+                    android:text="Shares Owned"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            </RelativeLayout>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:text="Shares Owned"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" >
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:text="Total Value"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
-                </RelativeLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <RelativeLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:layout_weight="1" >
 
-                <RelativeLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" >
-
-                    <TextView
-                        android:id="@+id/totalShares"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" >
-
-                    <TextView
-                        android:id="@+id/totalValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
-                </RelativeLayout>
-            </LinearLayout>
+                    android:layout_centerInParent="true"
+                    android:text="Total Value"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            </RelativeLayout>
         </LinearLayout>
-    </LinearLayout>
 
-    <Button
-        android:id="@+id/getData"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Refresh All Data" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" >
+
+                <TextView
+                    android:id="@+id/totalShares"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" >
+
+                <TextView
+                    android:id="@+id/totalValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+            </RelativeLayout>
+        </LinearLayout>
+        
+        <fragment android:name="opengl.Graph"
+              android:id="@+id/total_graph"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content" />
+    </LinearLayout>
 
 </LinearLayout>

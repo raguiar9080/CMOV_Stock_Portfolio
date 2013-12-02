@@ -29,6 +29,13 @@ class PieChart implements Renderer {
 			0.0f , 1.0f , 1.0f,
 	};
 
+	private final float[] BackColor = {
+			0.0f, 0.0f, 0.0f,0.0f
+	};
+	
+	private final float[] TextColor = {
+			0.0f, 0.0f, 0.0f, 1.0f
+	};
 
 	private ArrayList<NameValuePair> data;
 	private Integer sum_values;
@@ -54,7 +61,7 @@ class PieChart implements Renderer {
 	public PieChart(ArrayList<NameValuePair> elems, Context context) {
 		this.context = context;
 		this.data = elems;
-		
+
 		//create N partitions in pie chart
 		if(elems!=null)
 		{
@@ -68,8 +75,13 @@ class PieChart implements Renderer {
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig arg1) {
-		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); 
-		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
+		gl.glClearColor(BackColor[0],BackColor[1],BackColor[2],BackColor[3]); 
+
+		gl.glDisable(GL10.GL_DITHER);
+		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST);
+
+		gl.glEnable(GL10.GL_CULL_FACE);
+		gl.glShadeModel(GL10.GL_SMOOTH);
 
 		//Cannot Enable due to text, dunno why :S
 		//gl.glEnable(GL10.GL_DEPTH_TEST);
@@ -81,7 +93,7 @@ class PieChart implements Renderer {
 
 		// Load the font from file (set size + padding), creates the texture
 		// NOTE: after a successful call to this the font is ready for rendering!
-		glText.load( "Roboto-Regular.ttf", 14, 2, 2 );  // Create Font (Height: 14 Pixels / X+Y Padding 2 Pixels)
+		glText.load( "Roboto-Regular.ttf", 16, 2, 2 );  // Create Font (Height: 14 Pixels / X+Y Padding 2 Pixels)
 
 		// Get all the buffers ready
 		setAllBuffers();
@@ -94,7 +106,7 @@ class PieChart implements Renderer {
 		this.DrawPieLabels(gl);
 		this.DrawPieChart(gl);
 	}
-	
+
 	//just a function to automate writing text
 	public void DrawText(GL10 gl, String text, float pos_x, float pos_y)
 	{
@@ -105,7 +117,7 @@ class PieChart implements Renderer {
 		gl.glEnable( GL10.GL_BLEND );                   // Enable Alpha Blend
 		gl.glBlendFunc( GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA );  // Set Alpha Blend Function
 
-		glText.begin( 1.0f, 1.0f, 1.0f, 1.0f );
+		glText.begin( TextColor[0], TextColor[1], TextColor[2], TextColor[3]);
 		glText.draw(text, pos_x, pos_y );
 		glText.end();
 
@@ -141,12 +153,12 @@ class PieChart implements Renderer {
 
 		text_center_y -= (10 + (1.5 * glText.getCharHeight()));
 		text_center_x += 10;
-		
+
 		float maxLabelSize = -1;
 		for(int i = 0 ; i < data.size() ; i++)
 			if(glText.getLength(data.get(i).getName()) > maxLabelSize)
 				maxLabelSize = glText.getLength(data.get(i).getName());
-		
+
 		//1 label(offset) + 1 label(real) + 0.5 label(offset) + text
 		maxLabelSize += label_size * 2.5f;
 		int numberLabelsPerRow = (int)((width - text_center_x) / maxLabelSize);
@@ -155,7 +167,7 @@ class PieChart implements Renderer {
 		gl.glPushMatrix();
 		//go to begining position
 		gl.glTranslatef(text_center_x,  text_center_y, 0.0f);
-		
+
 		gl.glPushMatrix();
 		int row = 0;
 		for(int i = 0 ; i < data.size() ; i++)
@@ -172,9 +184,9 @@ class PieChart implements Renderer {
 					GL10.GL_UNSIGNED_SHORT, mLabelIB); 
 
 			gl.glPopMatrix();
-			
+
 			DrawText(gl, data.get(i).getName(), label_size * 2.5f, 0.0f );
-		
+
 			row++;
 			if(row >= numberLabelsPerRow)
 			{
@@ -232,7 +244,7 @@ class PieChart implements Renderer {
 	private void setAllBuffers(){
 		if(data == null)
 			return;
-		
+
 		float labelCoords[] = {
 				// X, Y, Z
 				0.0f, 0.0f, 0.0f,
@@ -348,7 +360,7 @@ class PieChart implements Renderer {
 				0, height,
 				1.0f, -1.0f
 				);
-		
+
 		/*// Save width and height
 		float aspect = (float)width / height; 
 

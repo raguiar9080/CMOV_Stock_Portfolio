@@ -13,14 +13,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -49,12 +50,53 @@ public class Portfolio extends Fragment {
 					Stock tmp = new Stock(data.getStringExtra("tick"), data.getStringExtra("fullName"), data.getIntExtra("owned", 0));
 					Common.stocks.set(Common.selected, tmp);
 					adapter.notifyDataSetChanged();
-					
+
 					//not needed but forced. Already called because of EditActivity losing UI
 					onResume();
 				}
 			}
 		}
+	}
+
+	public void addStock()
+	{
+		Intent i = new Intent(getActivity(), TickEditActivity.class);
+		startActivityForResult(i, Common.REQ_CODE_TICK);
+	}
+
+	public void editStock()
+	{
+		if(!(Common.selected> 0 && Common.selected < Common.stocks.size()))
+			return;
+
+		Intent i = new Intent(getActivity(), TickEditActivity.class);
+		//Create a bundle object
+		Bundle b = new Bundle();
+
+		//Inserts a String value into the mapping of this Bundle
+		b.putString("tick", Common.stocks.get(Common.selected).getTick());
+		b.putString("fullName", Common.stocks.get(Common.selected).getFullName());
+		b.putInt("owned", Common.stocks.get(Common.selected).getOwned());
+
+		//Add the bundle to the intent.
+		i.putExtras(b);
+
+		startActivityForResult(i, Common.REQ_CODE_TICK);
+	}
+
+	public void removeStock()
+	{
+		if(!(Common.selected> 0 && Common.selected < Common.stocks.size()))
+			return;
+
+		adapter.remove(Common.stocks.get(Common.selected));
+
+		//this keeps Common.selected correct
+		if(Common.selected >= Common.stocks.size())
+			Common.selected--;
+
+		//force refresh data
+		onResume();
 	}
 
 	@Override
@@ -83,53 +125,6 @@ public class Portfolio extends Fragment {
 			public void onNothingSelected(AdapterView<?> parent) {
 				getView().findViewById(R.id.stockInformation).setVisibility(View.GONE);
 			}
-		});
-
-		final Button addTick = (Button) view.findViewById(R.id.addTick);
-		addTick.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				Intent i = new Intent(getActivity(), TickEditActivity.class);
-				startActivityForResult(i, Common.REQ_CODE_TICK);
-			}	
-		});
-
-		final Button removeTick = (Button) view.findViewById(R.id.removeTick);
-		removeTick.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				adapter.remove(Common.stocks.get(Common.selected));
-				
-				//this keeps Common.selected correct
-				if(Common.selected >= Common.stocks.size())
-					Common.selected--;
-				
-				//force refresh data
-				onResume();
-			}	
-		});
-
-		final Button editTick= (Button) view.findViewById(R.id.editTick);
-		editTick.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				Intent i = new Intent(getActivity(), TickEditActivity.class);
-				//Create a bundle object
-		        Bundle b = new Bundle();
-		 
-		        //Inserts a String value into the mapping of this Bundle
-		        b.putString("tick", Common.stocks.get(Common.selected).getTick());
-		        b.putString("fullName", Common.stocks.get(Common.selected).getFullName());
-		        b.putInt("owned", Common.stocks.get(Common.selected).getOwned());
-		        
-		        //Add the bundle to the intent.
-		        i.putExtras(b);
-		        
-				startActivityForResult(i, Common.REQ_CODE_TICK);
-			}	
 		});
 
 		/*final Button refreshFrag = (Button) view.findViewById(R.id.refreshFragment);
@@ -177,8 +172,30 @@ public class Portfolio extends Fragment {
         adapter.add(new Stock("SSFT","Sick Corporation",90));
 		 */
 
-
+		this.setHasOptionsMenu(true);
 		return view;
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		inflater.inflate(R.menu.portfolio, menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId())
+		{
+		case R.id.action_add:
+			addStock();
+		case R.id.action_edit:
+			editStock();
+		case R.id.action_remove:
+			removeStock();
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -197,7 +214,7 @@ public class Portfolio extends Fragment {
 			value.setText(Common.stocks.get(Common.selected).getValue().toString() + "$");
 			total.setText(Common.stocks.get(Common.selected).getTotalValue().toString() + "$");
 			checked.setText(Common.stocks.get(Common.selected).getLastCheck());
-			
+
 			//TODO not refreshing spinner
 			//adapter is changing but spinner selected item not
 		}
