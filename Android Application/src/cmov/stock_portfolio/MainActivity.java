@@ -2,7 +2,6 @@ package cmov.stock_portfolio;
 
 import java.util.Locale;
 
-import opengl.Graph;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.os.Bundle;

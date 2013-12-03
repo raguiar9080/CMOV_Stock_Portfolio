@@ -24,6 +24,9 @@ import common.Common;
 import common.Network;
 import common.Stock;
 
+
+import opengl.Graph;
+
 public class TotalPortfolio extends Fragment {
 
 	@Override
@@ -61,6 +64,17 @@ public class TotalPortfolio extends Fragment {
 
 		owned.setText(Common.getSumShares().toString());
 		value.setText(Common.getSumValue().toString() + "$");
+		
+		//redraw Graph
+		ArrayList<NameValuePair> elems = new ArrayList<NameValuePair>();
+		for(Stock stock : Common.stocks)
+		{
+			elems.add(new BasicNameValuePair(stock.getTick(), stock.getOwned().toString()));
+		}
+
+		Graph articleFrag = (Graph) getActivity().getSupportFragmentManager().findFragmentById(R.id.total_graph);
+		articleFrag.drawPie(elems);
+		
 		super.onResume();
 	}
 

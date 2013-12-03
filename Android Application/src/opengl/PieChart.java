@@ -32,7 +32,7 @@ class PieChart implements Renderer {
 	private final float[] BackColor = {
 			0.0f, 0.0f, 0.0f,0.0f
 	};
-	
+
 	private final float[] TextColor = {
 			0.0f, 0.0f, 0.0f, 1.0f
 	};
@@ -97,7 +97,22 @@ class PieChart implements Renderer {
 
 		// Get all the buffers ready
 		setAllBuffers();
-	} 
+	}
+
+	public void restart(ArrayList<NameValuePair> elems) {
+		this.data = elems;
+		
+		//create N partitions in pie chart
+		if(elems!=null)
+		{
+			mNumOfIndices = new int[elems.size()];
+
+			sum_values = 0;
+			for (NameValuePair value : elems)
+				sum_values += Integer.parseInt(value.getValue());		
+		}
+		setAllBuffers();
+	}
 
 	public void onDrawFrame(GL10 gl) { 
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT); 

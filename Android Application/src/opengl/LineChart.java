@@ -90,6 +90,12 @@ class LineChart implements Renderer {
 		setAllBuffers();
 	} 
 
+	public void restart(ArrayList<Pair<String, ArrayList<Double>>> elems) {
+		this.data = elems;
+		
+		setAllBuffers();
+	}
+	
 	public void onDrawFrame(GL10 gl) { 
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT); 
 		gl.glMatrixMode(GL10.GL_MODELVIEW); 

@@ -3,7 +3,6 @@ package opengl;
 import java.util.ArrayList;
 
 import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
@@ -24,14 +23,6 @@ public class Graph extends Fragment {
 		super.onCreate(savedInstanceState); 
 		
 		//TODO dummy data
-		ArrayList<NameValuePair> elems = new ArrayList<NameValuePair>();
-		elems.add(new BasicNameValuePair("MSFT", Integer.valueOf(20).toString()));
-		elems.add(new BasicNameValuePair("TWTW", Integer.valueOf(30).toString()));
-		elems.add(new BasicNameValuePair("NEW", Integer.valueOf(10).toString()));
-		elems.add(new BasicNameValuePair("VALV", Integer.valueOf(45).toString()));
-		elems.add(new BasicNameValuePair("TTTMO", Integer.valueOf(3).toString()));
-		elems.add(new BasicNameValuePair("LOLED", Integer.valueOf(30).toString()));
-		elems.add(new BasicNameValuePair("LAST", Integer.valueOf(20).toString()));
 		
 		/*ArrayList<Pair<String, ArrayList<Double>>> elems = new ArrayList<Pair<String,ArrayList<Double>>>();
 		Pair<String, ArrayList<Double>> elem = new Pair<String, ArrayList<Double>> ("Average", (new ArrayList<Double>()));
@@ -57,10 +48,16 @@ public class Graph extends Fragment {
 		// Set to use OpenGL ES 2.0
 		//mView.setEGLContextClientVersion(2); 
 		
-		mRenderer = new PieChart(elems, getActivity().getBaseContext()); 
+		mRenderer = new PieChart(null, getActivity().getBaseContext()); 
 		//mRenderer = new LineChart(elems, getActivity().getBaseContext());
 		mView.setRenderer(mRenderer);
-		return mView; 
+		return mView;
+	}
+	
+	public void drawPie(ArrayList<NameValuePair> elems)
+	{
+		if(elems.size()>0)
+			mRenderer.restart(elems);
 	}
 	
 	public boolean onTouchEvent(MotionEvent event) {
