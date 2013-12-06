@@ -21,8 +21,9 @@ class PieChart implements Renderer {
 	private final int Dimensions = 3;
 	private final Short segments = 360;
 	private final Double radius = 1.0;
+	
 	private final float[] Colors = {
-			1.0f , 1.0f , 1.0f,	
+			0.0f , 0.0f , 0.0f,	
 			1.0f , 0.0f , 0.0f,
 			0.0f , 1.0f , 0.0f,
 			0.0f , 0.0f , 1.0f,

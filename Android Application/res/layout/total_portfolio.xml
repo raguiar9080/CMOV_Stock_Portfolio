@@ -75,7 +75,7 @@
             </RelativeLayout>
         </LinearLayout>
         
-        <fragment android:name="opengl.Graph"
+        <fragment android:name="opengl.PieGraph"
               android:id="@+id/total_graph"
               android:layout_width="match_parent"
               android:layout_height="wrap_content" />

@@ -25,7 +25,7 @@ import common.Network;
 import common.Stock;
 
 
-import opengl.Graph;
+import opengl.PieGraph;
 
 public class TotalPortfolio extends Fragment {
 
@@ -72,7 +72,7 @@ public class TotalPortfolio extends Fragment {
 			elems.add(new BasicNameValuePair(stock.getTick(), stock.getOwned().toString()));
 		}
 
-		Graph articleFrag = (Graph) getActivity().getSupportFragmentManager().findFragmentById(R.id.total_graph);
+		PieGraph articleFrag = (PieGraph) getActivity().getSupportFragmentManager().findFragmentById(R.id.total_graph);
 		articleFrag.drawPie(elems);
 		
 		super.onResume();

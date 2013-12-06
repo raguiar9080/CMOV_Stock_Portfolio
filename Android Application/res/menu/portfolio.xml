@@ -6,6 +6,12 @@
         android:icon="@drawable/add"
         android:showAsAction="ifRoom"
         android:title="Add"/>
+    
+    <item
+        android:id="@+id/action_sync_stock"
+        android:icon="@drawable/sync"
+        android:showAsAction="ifRoom"
+        android:title="Sync"/>
     <item
         android:id="@+id/action_edit"
         android:icon="@drawable/edit"

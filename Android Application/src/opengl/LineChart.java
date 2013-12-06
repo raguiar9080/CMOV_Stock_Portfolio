@@ -12,8 +12,9 @@ import javax.microedition.khronos.opengles.GL10;
 import opengl.text.GLText;
 import android.content.Context;
 import android.opengl.GLSurfaceView.Renderer;
-import android.util.Pair;
 import android.view.MotionEvent;
+
+import common.Series;
 
 class LineChart implements Renderer {
 	private final int Dimensions = 3;
@@ -21,7 +22,7 @@ class LineChart implements Renderer {
 	private float drawStart = -1;
 
 	private final float[] Colors = {
-			1.0f , 1.0f , 1.0f,	
+			0.0f , 0.0f , 0.0f,	
 			1.0f , 0.0f , 0.0f,
 			0.0f , 1.0f , 0.0f,
 			0.0f , 0.0f , 1.0f,
@@ -37,8 +38,9 @@ class LineChart implements Renderer {
 	};
 
 
-	private ArrayList<Pair<String, ArrayList<Double>>> data = null;
-	private ArrayList<Pair<Double, Double>> mMaxValues= new ArrayList<Pair<Double, Double>>();
+	private ArrayList<Series> data = null;
+	Double max = Double.MIN_VALUE;
+	Double min = Double.MAX_VALUE;
 
 	private Context context= null;
 	private FloatBuffer mLineVB = null; 
@@ -59,7 +61,7 @@ class LineChart implements Renderer {
 	private float mPreviousY; 
 	private final float TOUCH_SCALE_FACTOR = 0.6f;*/
 
-	public LineChart(ArrayList<Pair<String, ArrayList<Double>>> elems, Context context) {
+	public LineChart(ArrayList<Series> elems, Context context) {
 		this.context = context;
 		this.data = elems;
 	} 
@@ -90,8 +92,8 @@ class LineChart implements Renderer {
 		setAllBuffers();
 	} 
 
-	public void restart(ArrayList<Pair<String, ArrayList<Double>>> elems) {
-		this.data = elems;
+	public void restart(ArrayList<Series> arrayList) {
+		this.data = arrayList;
 		
 		setAllBuffers();
 	}
@@ -154,8 +156,8 @@ class LineChart implements Renderer {
 
 		float maxLabelSize = -1;
 		for(int i = 0 ; i < data.size() ; i++)
-			if(glText.getLength(data.get(i).first) > maxLabelSize)
-				maxLabelSize = glText.getLength(data.get(i).first);
+			if(glText.getLength(data.get(i).getFirst()) > maxLabelSize)
+				maxLabelSize = glText.getLength(data.get(i).getFirst());
 
 		//1 label(offset) + 1 label(real) + 0.5 label(offset) + text
 		maxLabelSize += label_size * 2.5f;
@@ -183,7 +185,7 @@ class LineChart implements Renderer {
 
 			gl.glPopMatrix();
 
-			DrawText(gl, data.get(i).first, label_size * 2.5f, 0.0f );
+			DrawText(gl, data.get(i).getFirst(), label_size * 2.5f, 0.0f );
 
 			row++;
 			if(row >= numberLabelsPerRow)
@@ -262,7 +264,7 @@ class LineChart implements Renderer {
 			gl.glColor4f(Colors[(i*3) % Colors.length], Colors[((i*3) + 1) % Colors.length], Colors[((i*3) + 2) % Colors.length], 1.0f);
 
 			//swap color
-			gl.glDrawElements(GL10.GL_LINE_STRIP, data.get(i).second.size(), 
+			gl.glDrawElements(GL10.GL_LINE_STRIP, data.get(i).getSecond().size(), 
 					GL10.GL_UNSIGNED_SHORT, mLineIB.position(offset)); 
 			
 			/*for(int index = offset ; index < offset + data.get(i).second.size()  ; index++)
@@ -270,7 +272,7 @@ class LineChart implements Renderer {
 				Double value = data.get(i).second.get(index - offset);
 				DrawText(gl, value.toString(), mLineVB.get(index), mLineVB.get(index + 1));
 			}*/
-			offset += data.get(i).second.size();
+			offset += data.get(i).getSecond().size();
 
 		}
 
@@ -313,19 +315,17 @@ class LineChart implements Renderer {
 		//INIT OF LINECHART BUFFERS
 		int totalNumberPoints = 0;
 
-		for (Pair<String, ArrayList<Double>> elem : data)
+		
+		for (Series elem : data)
 		{
-			Double max = Double.MIN_VALUE;
-			Double min = Double.MAX_VALUE;
-			totalNumberPoints += elem.second.size();
-			for (Double value : elem.second)
+			totalNumberPoints += elem.getSecond().size();
+			for (Double value : elem.getSecond())
 			{
 				if(value > max)
 					max = value;
 				if(value < min)
 					min = value;
 			}
-			mMaxValues.add(new Pair<Double,Double> (min,max));
 		}
 
 		float vertexlist[] = new float [totalNumberPoints * Dimensions];
@@ -334,21 +334,21 @@ class LineChart implements Renderer {
 		//draw y = [-1,1]
 		int series = 0;
 		int elem = 0;
-		int elems_x = data.get(series).second.size() - 1;
+		int elems_x = data.get(series).getSecond().size() - 1;
 		for (int a = 0; a < totalNumberPoints; a++, elem++)
 		{
 			if(elem > elems_x)
 			{
 				elem=0;
 				series++;
-				elems_x = data.get(series).second.size() - 1;
+				elems_x = data.get(series).getSecond().size() - 1;
 			}
-			Double value = data.get(series).second.get(elem);
-			Double range = mMaxValues.get(series).second - mMaxValues.get(series).first;
+			Double value = data.get(series).getSecond().get(elem);
+			Double range = max - min;
 
 
 			vertexlist[a * Dimensions] = (float) (drawStart + (elem / ((float)(elems_x))) * this.drawRange);
-			vertexlist[(a * Dimensions) + 1] = (float) (drawStart + ((value - mMaxValues.get(series).first) / range) * this.drawRange);
+			vertexlist[(a * Dimensions) + 1] = (float) (drawStart + ((value - min) / range) * this.drawRange);
 			vertexlist[(a * Dimensions) + 2] = 0.0f;
 		}
 

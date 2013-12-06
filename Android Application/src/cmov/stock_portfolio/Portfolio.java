@@ -2,6 +2,8 @@ package cmov.stock_portfolio;
 
 import java.util.ArrayList;
 
+import opengl.LineGraph;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
@@ -18,17 +20,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import cmov.stock.stock_portfolio.R;
 
 import common.Common;
 import common.Network;
+import common.Series;
 import common.Stock;
 
 public class Portfolio extends Fragment {
@@ -42,15 +43,26 @@ public class Portfolio extends Fragment {
 			{      
 				if(data.getIntExtra("type", 0) == Common.ADD)
 				{
-					Stock tmp = new Stock(data.getStringExtra("tick"), data.getStringExtra("fullName"), data.getIntExtra("owned", 0));
+					Stock tmp = new Stock(data.getStringExtra("tick"), data.getIntExtra("owned", 0));
 					adapter.add(tmp);					
 				}
 				else
 				{
-					Stock tmp = new Stock(data.getStringExtra("tick"), data.getStringExtra("fullName"), data.getIntExtra("owned", 0));
-					Common.stocks.set(Common.selected, tmp);
-					adapter.notifyDataSetChanged();
+					//update owned
+					if(Common.stocks.get(Common.selected).getTick().equals(data.getStringExtra("tick")))
+					{
+						Common.stocks.get(Common.selected).setOwned(data.getIntExtra("owned", 0));
+						adapter.notifyDataSetChanged();
 
+					}
+					else
+					{
+						Stock tmp = new Stock(data.getStringExtra("tick"), data.getIntExtra("owned", 0));
+						adapter.remove(Common.stocks.get(Common.selected));
+						adapter.add(tmp);
+					}
+					//new tick - just force new
+					
 					//not needed but forced. Already called because of EditActivity losing UI
 					onResume();
 				}
@@ -66,7 +78,7 @@ public class Portfolio extends Fragment {
 
 	public void editStock()
 	{
-		if(!(Common.selected> 0 && Common.selected < Common.stocks.size()))
+		if(!(Common.selected> -1 && Common.selected < Common.stocks.size()))
 			return;
 
 		Intent i = new Intent(getActivity(), TickEditActivity.class);
@@ -75,7 +87,6 @@ public class Portfolio extends Fragment {
 
 		//Inserts a String value into the mapping of this Bundle
 		b.putString("tick", Common.stocks.get(Common.selected).getTick());
-		b.putString("fullName", Common.stocks.get(Common.selected).getFullName());
 		b.putInt("owned", Common.stocks.get(Common.selected).getOwned());
 
 		//Add the bundle to the intent.
@@ -113,12 +124,7 @@ public class Portfolio extends Fragment {
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				Common.selected = position;
 
-				onResume();
-
-				final WebView graphEvo = (WebView) getView().findViewById(R.id.GraphEvolution);
-				final ProgressBar webViewProgress = (ProgressBar) getView().findViewById(R.id.webViewProgress);
-				graphEvo.setVisibility(View.GONE);
-				webViewProgress.setVisibility(View.GONE);
+				Refresh();
 			}
 
 			@Override
@@ -126,52 +132,7 @@ public class Portfolio extends Fragment {
 				getView().findViewById(R.id.stockInformation).setVisibility(View.GONE);
 			}
 		});
-
-		/*final Button refreshFrag = (Button) view.findViewById(R.id.refreshFragment);
-		refreshFrag.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				String url =  "http://chart.apis.google.com/chart?cht=p3&chs=500x200&chd=e:TNTNTNGa&chts=000000,16&chtt=A+Better+Web&chl=Hello|Hi|anas|Explorer&chco=FF5533,237745,9011D3,335423&chdl=Apple|Mozilla|Google|Microsoft";
-
-				final WebView graphEvo = (WebView) getView().findViewById(R.id.GraphEvolution);
-				graphEvo.setWebViewClient(new WebViewClient() {
-					@Override
-					public void onPageStarted(WebView view, String url, Bitmap favicon) {
-						super.onPageStarted(view, url, favicon);
-						final ProgressBar webViewProgress = (ProgressBar) getView().findViewById(R.id.webViewProgress);
-						webViewProgress.setVisibility(View.VISIBLE);
-					}
-
-					@Override
-					public void onPageFinished(WebView view, String url) {
-						super.onPageFinished(view, url);
-						view.setVisibility(View.VISIBLE);
-						final ProgressBar webViewProgress = (ProgressBar) getView().findViewById(R.id.webViewProgress);
-						webViewProgress.setVisibility(View.GONE);
-					}
-				});
-				graphEvo.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
-
-				graphEvo.loadUrl(url);				
-			}
-		});*/
-
-
-
-
-		/*
-		//TODO
-        adapter.add(new Stock("MSFT","Microsoft Corporation",10));
-        adapter.add(new Stock("TWIT","Twiter",20));
-        adapter.add(new Stock("ASDD","Corporation",30));
-        adapter.add(new Stock("AWEQ","Bad Corporation",40));
-        adapter.add(new Stock("GSFT","Good Corporation",50));
-        adapter.add(new Stock("ESFT","Evil Corporation",60));
-        adapter.add(new Stock("VALV","Valve Corporation",70));
-        adapter.add(new Stock("QSFT","Healthy Corporation",80));
-        adapter.add(new Stock("SSFT","Sick Corporation",90));
-		 */
-
+		
 		this.setHasOptionsMenu(true);
 		return view;
 	}
@@ -189,13 +150,18 @@ public class Portfolio extends Fragment {
 		{
 		case R.id.action_add:
 			addStock();
+			break;
+		case R.id.action_sync_stock:
+			new AsyncGetEvolution().execute();
+			break;
 		case R.id.action_edit:
 			editStock();
+			break;
 		case R.id.action_remove:
 			removeStock();
-		default:
-			return super.onOptionsItemSelected(item);
+			break;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -203,26 +169,33 @@ public class Portfolio extends Fragment {
 	{
 		if(Common.selected != - 1 && getView() != null)
 		{
-			getView().findViewById(R.id.stockInformation).setVisibility(View.VISIBLE);
-
-			final TextView owned = (TextView) getView().findViewById(R.id.ownedShares);
-			final TextView value = (TextView) getView().findViewById(R.id.shareValue);
-			final TextView total = (TextView) getView().findViewById(R.id.totalValue);
-			final TextView checked = (TextView) getView().findViewById(R.id.lastChecked);
-
-			owned.setText(Common.stocks.get(Common.selected).getOwned().toString());
-			value.setText(Common.stocks.get(Common.selected).getValue().toString() + "$");
-			total.setText(Common.stocks.get(Common.selected).getTotalValue().toString() + "$");
-			checked.setText(Common.stocks.get(Common.selected).getLastCheck());
-
-			//TODO not refreshing spinner
-			//adapter is changing but spinner selected item not
+			Refresh();
+			
+			adapter.notifyDataSetChanged();
 		}
 		else if(Common.selected == - 1 && getView() != null)
 		{
 			getView().findViewById(R.id.stockInformation).setVisibility(View.GONE);
 		}
 		super.onResume();
+	}
+	
+	public void Refresh()
+	{
+		getView().findViewById(R.id.stockInformation).setVisibility(View.VISIBLE);
+
+		final TextView owned = (TextView) getView().findViewById(R.id.ownedShares);
+		final TextView value = (TextView) getView().findViewById(R.id.shareValue);
+		final TextView total = (TextView) getView().findViewById(R.id.totalValue);
+		final TextView checked = (TextView) getView().findViewById(R.id.lastChecked);
+
+		owned.setText(Common.stocks.get(Common.selected).getOwned().toString());
+		value.setText(Common.stocks.get(Common.selected).getValue().toString() + "$");
+		total.setText(Common.stocks.get(Common.selected).getTotalValue().toString() + "$");
+		checked.setText(Common.stocks.get(Common.selected).getLastCheck());
+		
+		LineGraph lineFrag = (LineGraph) getActivity().getSupportFragmentManager().findFragmentById(R.id.stock_graph);
+		lineFrag.drawLine(Common.stocks.get(Common.selected).getHistory());
 	}
 
 	public class StockAdapter extends ArrayAdapter<Stock> {
@@ -262,7 +235,8 @@ public class Portfolio extends Fragment {
 				TextView tt = (TextView) v.findViewById(R.id.toptext);
 				TextView bt = (TextView) v.findViewById(R.id.bottomtext);
 				if (tt != null) {
-					tt.setText(o.getTick());                            }
+					tt.setText(o.getTick());
+				}
 				if(bt != null){
 					bt.setText(o.getFullName());
 				}
@@ -298,6 +272,31 @@ public class Portfolio extends Fragment {
 		}
 		protected void onPostExecute(JSONObject result) {
 			System.out.println(result.toString());
+			
+			
+
+
+			
+			//TODO PARSE
+			ArrayList<Series> elems = new ArrayList<Series>();
+			Series elem = new Series("Average");
+			elem.add(1.0);
+			elem.add(1.3);
+			elem.add(3.5);
+			elem.add(5.0);
+			elems.add(elem);
+			elem = new Series("Max");
+			elem.add(4.0);
+			elem.add(7.21);
+			elem.add(13.5);
+			elem.add(5.6);
+			elem.add(9.1);
+			elems.add(elem);
+			
+			Common.stocks.get(Common.selected).setHistory(elems);	
+			
+			
+			Refresh();
 		}
 	}
 }

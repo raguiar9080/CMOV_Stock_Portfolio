@@ -13,7 +13,6 @@ import common.Common;
 
 public class TickEditActivity extends Activity {
 	private String tick = "";
-	private String fullName = "";
 	private Integer owned = 0;
 	private Integer type = Common.ADD;
 	
@@ -27,7 +26,7 @@ public class TickEditActivity extends Activity {
 		
 		final Button end= (Button) findViewById(R.id.endTickEdit);
 		
-		if(b!= null && b.containsKey("tick") && b.containsKey("fullName") && b.containsKey("owned"))
+		if(b!= null && b.containsKey("tick") && b.containsKey("owned"))
 		{
 			type = Common.EDIT;
 			end.setText("Update");
@@ -35,7 +34,6 @@ public class TickEditActivity extends Activity {
 			((EditText) findViewById(R.id.tickNameEditText)).setText(b.getString("tick"));
 			((EditText) findViewById(R.id.tickOwnedEditText)).setText(Integer.valueOf(b.getInt("owned")).toString());
 		}
-		
 		
 		
 		end.setOnClickListener(new OnClickListener() {
@@ -46,7 +44,6 @@ public class TickEditActivity extends Activity {
 				owned = Integer.parseInt(((EditText) findViewById(R.id.tickOwnedEditText)).getText().toString());
 				Intent returnIntent = new Intent();
 				returnIntent.putExtra("tick",tick);
-				returnIntent.putExtra("fullName", fullName + Double.valueOf(Math.random()).toString());
 				returnIntent.putExtra("owned",owned);
 				returnIntent.putExtra("type",type);
 				setResult(RESULT_OK,returnIntent);     

@@ -1,15 +1,17 @@
 package common;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Stock implements Serializable {
 	private static final long serialVersionUID = 1262807410200907660L;
 	private String tick = "Tick";
-	private String fullName = "Name";
+	private String fullName = "-";
 	private Integer owned = 0;
 	private Double value = 0.0;
 	private String lastCheck = "Date";
 	private Integer exchanges = 0;
+	private ArrayList<Series> history = new ArrayList<Series> ();
 
 	public Stock(String tick, String fullName, Integer owned)
 	{
@@ -18,6 +20,11 @@ public class Stock implements Serializable {
 		this.owned = owned;
 	}
 	
+	public Stock(String tick, Integer owned) {
+		this.tick = tick;
+		this.owned = owned;
+	}
+
 	public String getTick() {
 		return tick;
 	}
@@ -65,7 +72,15 @@ public class Stock implements Serializable {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return tick;
 	}
+	
+	public ArrayList<Series> getHistory() {
+		return history;
+	}
+
+	public void setHistory(ArrayList<Series> history) {
+		this.history = history;
+	}
+
 }

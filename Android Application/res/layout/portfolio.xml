@@ -118,20 +118,11 @@
             android:layout_height="wrap_content"
             android:gravity="center" >
 
-            <WebView
-                android:id="@+id/GraphEvolution"
+            <fragment
+                android:id="@+id/stock_graph"
+                android:name="opengl.LineGraph"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="3dp"
-                android:visibility="gone" />
-
-            <ProgressBar
-                android:id="@+id/webViewProgress"
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone" />
+                android:layout_height="wrap_content" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -155,7 +146,6 @@
                     android:text="Checked: " />
             </RelativeLayout>
         </RelativeLayout>
-
     </LinearLayout>
 
 </LinearLayout>
