@@ -1,11 +1,14 @@
 package cmov.stock_portfolio;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import opengl.LineGraph;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.Activity;
@@ -25,6 +28,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import cmov.stock.stock_portfolio.R;
 
 import common.Common;
@@ -62,7 +66,7 @@ public class Portfolio extends Fragment {
 						adapter.add(tmp);
 					}
 					//new tick - just force new
-					
+
 					//not needed but forced. Already called because of EditActivity losing UI
 					onResume();
 				}
@@ -132,7 +136,7 @@ public class Portfolio extends Fragment {
 				getView().findViewById(R.id.stockInformation).setVisibility(View.GONE);
 			}
 		});
-		
+
 		this.setHasOptionsMenu(true);
 		return view;
 	}
@@ -170,7 +174,7 @@ public class Portfolio extends Fragment {
 		if(Common.selected != - 1 && getView() != null)
 		{
 			Refresh();
-			
+
 			adapter.notifyDataSetChanged();
 		}
 		else if(Common.selected == - 1 && getView() != null)
@@ -179,7 +183,7 @@ public class Portfolio extends Fragment {
 		}
 		super.onResume();
 	}
-	
+
 	public void Refresh()
 	{
 		getView().findViewById(R.id.stockInformation).setVisibility(View.VISIBLE);
@@ -193,7 +197,7 @@ public class Portfolio extends Fragment {
 		value.setText(Common.stocks.get(Common.selected).getValue().toString() + "$");
 		total.setText(Common.stocks.get(Common.selected).getTotalValue().toString() + "$");
 		checked.setText(Common.stocks.get(Common.selected).getLastCheck());
-		
+
 		LineGraph lineFrag = (LineGraph) getActivity().getSupportFragmentManager().findFragmentById(R.id.stock_graph);
 		lineFrag.drawLine(Common.stocks.get(Common.selected).getHistory());
 	}
@@ -256,47 +260,53 @@ public class Portfolio extends Fragment {
 		}
 		@Override
 		protected JSONObject doInBackground(Void... params) {
-			//TODO make params usefull
-			elems.add(new BasicNameValuePair("a","9"));
-			elems.add(new BasicNameValuePair("b","5"));
-			elems.add(new BasicNameValuePair("c","2013"));
-			elems.add(new BasicNameValuePair("d","9"));
-			elems.add(new BasicNameValuePair("e","19"));
-			elems.add(new BasicNameValuePair("f","2013"));
+			Calendar ca1 = Calendar.getInstance();
+			ca1.setTime(new Date());
+
+			elems.add(new BasicNameValuePair("d",Integer.toString(ca1.get(Calendar.MONTH))));
+			elems.add(new BasicNameValuePair("e",Integer.toString(ca1.get(Calendar.DAY_OF_MONTH))));
+			elems.add(new BasicNameValuePair("f",Integer.toString(ca1.get(Calendar.YEAR))));
+
+			// Remove 30 days
+			ca1.add(Calendar.DATE, -30);
+
+			elems.add(new BasicNameValuePair("a",Integer.toString(ca1.get(Calendar.MONTH))));
+			elems.add(new BasicNameValuePair("b",Integer.toString(ca1.get(Calendar.DAY_OF_MONTH))));
+			elems.add(new BasicNameValuePair("c",Integer.toString(ca1.get(Calendar.YEAR))));
 			elems.add(new BasicNameValuePair("g","d"));
-			elems.add(new BasicNameValuePair("s","DELL"));
+			elems.add(new BasicNameValuePair("s",Common.stocks.get(Common.selected).getTick()));
 
 			Network connection = new Network(Common.SERVER_URL_CHARTS + "table.txt", "GET", elems, true);
 			connection.run();
 			return Common.convertJSON(connection.getResultObject(),true);
 		}
 		protected void onPostExecute(JSONObject result) {
-			System.out.println(result.toString());
-			
-			
+			try {
+				ArrayList<Series> elems = new ArrayList<Series>();
+				Series closeSeries = new Series("Close");
+				Series highSeries = new Series("High");
+				Series lowSeries = new Series("Low");
 
+				JSONArray all_ticks = (JSONArray) result.get("Values");
+				for (int i = 0 ; i < all_ticks.length() ; i++)
+				{
+					closeSeries.add(all_ticks.getJSONObject(i).getDouble("Close"));
+					highSeries.add(all_ticks.getJSONObject(i).getDouble("High"));
+					lowSeries.add(all_ticks.getJSONObject(i).getDouble("Low"));
+				}
 
-			
-			//TODO PARSE
-			ArrayList<Series> elems = new ArrayList<Series>();
-			Series elem = new Series("Average");
-			elem.add(1.0);
-			elem.add(1.3);
-			elem.add(3.5);
-			elem.add(5.0);
-			elems.add(elem);
-			elem = new Series("Max");
-			elem.add(4.0);
-			elem.add(7.21);
-			elem.add(13.5);
-			elem.add(5.6);
-			elem.add(9.1);
-			elems.add(elem);
-			
-			Common.stocks.get(Common.selected).setHistory(elems);	
-			
-			
-			Refresh();
+				elems.add(closeSeries);
+				elems.add(highSeries);
+				elems.add(lowSeries);
+
+				Common.stocks.get(Common.selected).setHistory(elems);
+
+				Toast.makeText(getActivity(), "Data Fetched", Toast.LENGTH_SHORT).show();
+
+				Refresh();				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

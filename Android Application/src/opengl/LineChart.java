@@ -94,6 +94,8 @@ class LineChart implements Renderer {
 
 	public void restart(ArrayList<Series> arrayList) {
 		this.data = arrayList;
+		max = Double.MIN_VALUE;
+		min = Double.MAX_VALUE;
 		
 		setAllBuffers();
 	}
