@@ -6,5 +6,8 @@
     <string name="title_section1">Wallet</string>
     <string name="title_section2">Portfolio</string>
     <string name="title_section3">Section 3</string>
-
+    <string name="add">Add</string>
+    <string name="owned">Owned Shares</string>
+	<string name="popular">Popular Companies</string>
+	<string name="tick">Tick</string>
 </resources>

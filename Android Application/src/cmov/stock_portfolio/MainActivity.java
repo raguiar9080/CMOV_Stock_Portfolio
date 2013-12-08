@@ -38,7 +38,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
 		super.onDestroy();
 	}
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
