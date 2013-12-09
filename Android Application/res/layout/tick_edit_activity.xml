@@ -7,19 +7,14 @@
         android:id="@+id/linearlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/little_spacing" >
+        android:layout_margin="@dimen/little_spacing"
+        android:background="@color/generalBG" >
 
         <Spinner
             android:id="@+id/spinner1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
-
-        <ProgressBar
-            android:id="@+id/progressMostUsedTicks"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
     </LinearLayout>
 

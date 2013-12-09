@@ -24,6 +24,8 @@ public class Common {
 	public static Integer EDIT = 1;
 	public static List<Stock> stocks = new ArrayList<Stock>();
 	public static Integer selected = -1;
+	
+	public static List<Stock> popular = new ArrayList<Stock>();
 
 	public static Boolean mExternalStorageAvailable = false;
 	public static Boolean mExternalStorageWriteable = false;
@@ -124,6 +126,31 @@ public class Common {
 			count += stock.getTick() + ",";
 		}
 		return count;
+	}
+	
+	public static void loadPopular()
+	{
+		Stock temp = new Stock("INTC","Intel Corporation",0);
+		popular.add(temp);
+		Stock temp1 = new Stock("CSCO","Cisco Systems, Inc.",0);
+		popular.add(temp1);
+		Stock temp2 = new Stock("FB","Facebook, Inc.",0);
+		popular.add(temp2);
+		Stock temp3 = new Stock("MSFT","Microsoft Corporation",0);
+		popular.add(temp3);
+		Stock temp4 = new Stock("ZNGA","Zynga Inc.",0);
+		popular.add(temp4);
+		Stock temp5 = new Stock("YHOO","Yahoo Inc.",0);
+		popular.add(temp5);
+		Stock temp6 = new Stock("HPQ","Hewlett-Packard",0);
+		popular.add(temp6);
+		Stock temp7 = new Stock("GOOG","Google Inc.",0);
+		popular.add(temp7);
+		Stock temp8 = new Stock("GM","General Motors Company",0);
+		popular.add(temp8);
+		Stock temp9 = new Stock("KO","Coca-Cola Company",0);
+		popular.add(temp9);
+		
 	}
 	
 	@SuppressWarnings("unchecked")
