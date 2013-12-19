@@ -198,8 +198,8 @@ public class Portfolio extends Fragment {
 		total.setText(Common.stocks.get(Common.selected).getTotalValue().toString() + "$");
 		checked.setText(Common.stocks.get(Common.selected).getLastCheck());
 
-		LineGraph lineFrag = (LineGraph) getActivity().getSupportFragmentManager().findFragmentById(R.id.stock_graph);
-		lineFrag.drawLine(Common.stocks.get(Common.selected).getHistory());
+		LineGraph lineGraf = (LineGraph) getActivity().getSupportFragmentManager().findFragmentById(R.id.stock_graph);
+		lineGraf.drawLine(Common.stocks.get(Common.selected).getHistory());
 	}
 
 	public class StockAdapter extends ArrayAdapter<Stock> {

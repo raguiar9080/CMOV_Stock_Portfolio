@@ -129,7 +129,7 @@ class LineChart implements Renderer {
 	}
 
 	public void DrawLineLabels(GL10 gl) {
-		if(data==null)
+		if(data==null || data.size()==0)
 		{
 			glText.load( "Roboto-Regular.ttf", 80, 2, 2 );
 			DrawText(gl, "NO DATA", width/2 - glText.getLength("NO DATA")/2, height/2 - glText.getCharHeight()/2);
@@ -209,7 +209,7 @@ class LineChart implements Renderer {
 
 	public void DrawBack(GL10 gl)
 	{
-		if(data==null)
+		if(data==null || data.size()==0)
 			return;
 
 		gl.glPushMatrix();
@@ -238,7 +238,7 @@ class LineChart implements Renderer {
 	}
 
 	public void DrawLineChart(GL10 gl) {
-		if(data==null)
+		if(data==null || data.size()==0)
 			return;
 
 		gl.glPushMatrix();
@@ -282,7 +282,7 @@ class LineChart implements Renderer {
 	}
 
 	private void setAllBuffers(){
-		if(data == null)
+		if(data==null || data.size()==0)
 			return;
 
 		float labelCoords[] = {

@@ -37,8 +37,7 @@ public class LineGraph extends Fragment {
 	
 	public void drawLine(ArrayList<Series> arrayList)
 	{
-		if(arrayList!=null && arrayList.size()>0)
-			mRenderer.restart(arrayList);
+		mRenderer.restart(arrayList);
 	}
 	
 	public boolean onTouchEvent(MotionEvent event) {
