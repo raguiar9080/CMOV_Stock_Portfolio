@@ -39,7 +39,7 @@ class PieChart implements Renderer {
 	};
 
 	private ArrayList<NameValuePair> data;
-	private Integer sum_values;
+	private Double sum_values;
 
 	private Context context= null;
 	private FloatBuffer mPieVB = null; 
@@ -68,9 +68,9 @@ class PieChart implements Renderer {
 		{
 			mNumOfIndices = new int[elems.size()];
 
-			sum_values = 0;
+			sum_values = 0.0;
 			for (NameValuePair value : elems)
-				sum_values += Integer.parseInt(value.getValue());		
+				sum_values += Double.parseDouble(value.getValue());
 		}
 	} 
 
@@ -108,9 +108,9 @@ class PieChart implements Renderer {
 		{
 			mNumOfIndices = new int[elems.size()];
 
-			sum_values = 0;
+			sum_values = 0.0;
 			for (NameValuePair value : elems)
-				sum_values += Integer.parseInt(value.getValue());		
+				sum_values += Double.parseDouble(value.getValue());		
 		}
 		setAllBuffers();
 	}

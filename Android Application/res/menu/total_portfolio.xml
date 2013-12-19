@@ -5,5 +5,11 @@
         android:icon="@drawable/sync"
         android:showAsAction="ifRoom"
         android:title="Sync"/>
+    
+   <item
+        android:id="@+id/action_graph"
+        android:icon="@drawable/search"
+        android:showAsAction="ifRoom"
+        android:title="Change Graph"/>
 
 </menu>
