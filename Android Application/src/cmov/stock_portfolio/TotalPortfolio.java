@@ -28,6 +28,12 @@ import common.Stock;
 import opengl.PieGraph;
 
 public class TotalPortfolio extends Fragment {
+	
+	private enum Graph {
+		STOCK_VALUE,
+		STOCK_QUANTITY
+	}
+	private Graph selection = Graph.STOCK_QUANTITY;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,6 +58,10 @@ public class TotalPortfolio extends Fragment {
 		case R.id.action_sync:
 			new AsyncGetStockInfo().execute();
 			return true;
+		case R.id.action_graph:
+			selection = Graph.values()[(selection.ordinal() + 1) % Graph.values().length];
+			onResume();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -61,15 +71,24 @@ public class TotalPortfolio extends Fragment {
 	public void onResume() {
 		final TextView owned = (TextView) getView().findViewById(R.id.totalShares);
 		final TextView value = (TextView) getView().findViewById(R.id.totalValue);
+		final TextView title = (TextView) getView().findViewById(R.id.PieGraphTitle);
 
 		owned.setText(Common.getSumShares().toString());
 		value.setText(Common.getSumValue().toString() + "$");
+		
+		if(selection.equals(Graph.STOCK_QUANTITY))
+			title.setText("Stocks Quantity");
+		else if(selection.equals(Graph.STOCK_VALUE))
+			title.setText("Stocks Value");
 		
 		//redraw Graph
 		ArrayList<NameValuePair> elems = new ArrayList<NameValuePair>();
 		for(Stock stock : Common.stocks)
 		{
-			elems.add(new BasicNameValuePair(stock.getTick(), stock.getOwned().toString()));
+			if(selection.equals(Graph.STOCK_QUANTITY))
+				elems.add(new BasicNameValuePair(stock.getTick(), stock.getOwned().toString()));
+			else if(selection.equals(Graph.STOCK_VALUE))
+				elems.add(new BasicNameValuePair(stock.getTick(), stock.getTotalValue().toString()));
 		}
 
 		PieGraph articleFrag = (PieGraph) getActivity().getSupportFragmentManager().findFragmentById(R.id.total_graph);
