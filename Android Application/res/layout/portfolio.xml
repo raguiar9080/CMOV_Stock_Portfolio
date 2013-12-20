@@ -121,29 +121,7 @@
                 </RelativeLayout>
             </LinearLayout>
         </LinearLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true" >
-
-            <TextView
-                android:id="@+id/lastChecked"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerHorizontal="true"
-                android:text="Data" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_toLeftOf="@id/lastChecked"
-                android:text="Checked: " />
-        </RelativeLayout>
-
+        
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -154,7 +132,29 @@
                 android:name="opengl.LineGraph"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-        </RelativeLayout>
+           
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true" >
+
+                <TextView
+                    android:id="@+id/lastChecked"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerHorizontal="true"
+                    android:text="Data" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_toLeftOf="@id/lastChecked"
+                    android:text="Checked: " />
+            </RelativeLayout>
+        </RelativeLayout>              
     </LinearLayout>
 
 </LinearLayout>

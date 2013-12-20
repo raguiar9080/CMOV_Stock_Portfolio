@@ -26,30 +26,7 @@ public class TickEditActivity extends Activity {
 	private String tick = "";
 	private Integer owned = 0;
 	private Integer type = Common.ADD;
-	
-	private void fillSpinner()
-	{
-		Spinner spn=(Spinner) findViewById(R.id.spinner1);
-		StockAdapter adapter = new StockAdapter(this, R.layout.row_stock);
 		
-		spn.setAdapter(adapter);
-		spn.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				EditText edit=(EditText) findViewById(R.id.tickNameEditText);
-				Object o=parent.getItemAtPosition(position);
-				edit.setText(o.toString());				
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-	}
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -57,19 +34,41 @@ public class TickEditActivity extends Activity {
 
 		Bundle b = getIntent().getExtras();
 		
-		fillSpinner();
+		Spinner spn=(Spinner) findViewById(R.id.spinner1);
+		spn.setVisibility(View.GONE);
 		
 		final Button end= (Button) findViewById(R.id.endTickEdit);
-		
+				
 		if(b!= null && b.containsKey("tick") && b.containsKey("owned"))
 		{
 			type = Common.EDIT;
+			Log.d("Test",b.getString("tick"));
 			end.setText("Update");
 			
 			((EditText) findViewById(R.id.tickNameEditText)).setText(b.getString("tick"));
 			((EditText) findViewById(R.id.tickOwnedEditText)).setText(Integer.valueOf(b.getInt("owned")).toString());
 		}
-		
+		else
+		{			
+			spn.setVisibility(View.VISIBLE);
+			StockAdapter adapter = new StockAdapter(this, R.layout.row_stock);
+			spn.setAdapter(adapter);
+			spn.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+						EditText edit=(EditText) findViewById(R.id.tickNameEditText);
+						Object o=parent.getItemAtPosition(position);
+						edit.setText(o.toString());											
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
+		}	
 		
 		end.setOnClickListener(new OnClickListener() {
 			@Override
